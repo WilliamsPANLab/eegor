@@ -6,11 +6,11 @@ The main software used is the [MNE](https://github.com/mne-tools/mne-python). Ho
 
 ### Processing steps
 
-1) A high pass filter of 0.3Hz, a low pass filter of 100Hz
+1.) A high pass filter of 0.3Hz, a low pass filter of 100Hz
 
 2.) 60Hz Notch filter
 
-3) Downsampled to 500 Hz
+3.) Downsampled to 500 Hz
 
 4.) Reference to average electrodes
 
