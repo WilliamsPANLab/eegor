@@ -8,11 +8,10 @@ class MissingFileError(Exception):
     pass
 
 def preprocess(eeg):
-    eeg = eeg.copy().filter(0.3, 100)
-    eeg = eeg.notch_filter([60])
-    eeg = eeg.resample(250)
-    eeg = eeg.set_eeg_reference(ref_channels="average")
-    return eeg
+    tmp = eeg.copy().filter(2, 100)
+    tmp = tmp.notch_filter([60])
+    tmp = tmp.set_eeg_reference(ref_channels="average")
+    return tmp
 
 def epoch(eeg):
     epochs = mne.make_fixed_length_epochs(eeg, duration=2, preload=False)
