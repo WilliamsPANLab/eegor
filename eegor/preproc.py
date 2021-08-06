@@ -1,6 +1,8 @@
 import mne
 from pathlib import Path
-from eegor.utils.os import DuplicateFileError, MissingFileError, load_data, find_file
+from autoreject import AutoReject
+from eegor.utils.os import DuplicateFileError, MissingFileError, find_file
+from eegor.utils.eeg import load_data
 
 def preprocess(eeg):
     tmp = eeg.copy().filter(2, 100)
@@ -28,6 +30,15 @@ def split_eeg(eeg):
     eyes_o.crop(tmin=max(eyes_o.times) - 285, tmax=max(eyes_o.times) - 15)
     eyes_c.crop(tmin=15, tmax=285)
     return eyes_o, eyes_c
+
+def reject(eeg):
+    n_interpolates = np.array([1, 4, 32])
+    consensus_percs = np.linspace(0, 1.0, 11)
+    picks = mne.pick_types(eeg.info, meg=False, eeg=True, stim=False, eog=False, ecg=False)
+    ar = AutoReject(thresh_method="random_search", random_state=42)
+    ar.fit(eeg)
+    clean = ar.transform(eeg)
+    return clean
 
 def main():
     root = Path("/Users/pstetz/Desktop/eeg")
