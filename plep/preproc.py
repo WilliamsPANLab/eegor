@@ -1,11 +1,6 @@
 import mne
 from pathlib import Path
-
-class DuplicateFileError(Exception):
-    pass
-
-class MissingFileError(Exception):
-    pass
+from eegor.os import DuplicateFileError, MissingFileError
 
 def preprocess(eeg):
     tmp = eeg.copy().filter(2, 100)
