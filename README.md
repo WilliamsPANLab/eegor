@@ -1,14 +1,12 @@
-# PLEP (PanLab EEG Pipeline)
+# EEGOR (EEG Operationalized Refinement)
 
 These are EEG processing scripts that are used for the TMS Biomarkers collaboration study.
-
-It is designed to have similarities with the PanLab Imaging Pipeline (PLIP)
 
 ### Installation
 
 ```
-git clone https://github.com/WilliamsPANLab/plep
-cd plep
+git clone https://github.com/WilliamsPANLab/eegor
+cd eegor
 pip3 install .
 ```
 
@@ -18,10 +16,10 @@ To reflect modifications to master code run the following commands while in the 
 
 ```
 git pull origin master
-pip3 unstall plep
+pip3 unstall eegor
 pip3 install .
 ```
 
 ### Processing steps
 
-Please see the [readme](plep#toc) under the `plep` folder for details
+Please see the [readme](eegor#toc) under the `eegor` folder for details

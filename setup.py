@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="plep",
+    name="eegor",
     version="0.0",
     author="PANLab team",
     author_email="pstetz@stanford.edu",
     description="",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/WilliamsPANLab/plep",
+    url="https://github.com/WilliamsPANLab/eegor",
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
