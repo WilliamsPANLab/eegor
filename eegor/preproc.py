@@ -10,8 +10,8 @@ def preprocess(eeg):
     tmp = tmp.set_eeg_reference(ref_channels="average")
     return tmp
 
-def epoch(eeg):
-    epochs = mne.make_fixed_length_epochs(eeg, duration=2, preload=False)
+def epoch(eeg, duration):
+    epochs = mne.make_fixed_length_epochs(eeg, duration=duration, preload=True, reject_by_annotation=False)
 
 def ica(epochs):
     ica = mne.preprocessing.ICA(n_components=64, max_iter="auto", random_state=97)
