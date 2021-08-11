@@ -14,3 +14,19 @@ def find_file(folder, regex: str):
         raise DuplicateFileError("Cannot find matches for", (folder / regex))
     else:
         return next(matches)
+
+def remove_ext(filepath):
+    filepath = Path(filepath)
+    filename = filepath.name
+    if "." not in filename:
+        return filename
+    return filepath.parent / filename.split(".")[0]
+
+def replace_ext(filepath, ext):
+    orig_type = type(filepath)
+    filepath_wo_ext = remove_ext(filepath)
+    if orig_type == str:
+        return str(filepath) + ext
+    elif orig_type == PosixPath:
+        return Path(str(filepath) + ext)
+    raise TypeError(f"Cannot coerce {filepath} to type {orig_type}")
