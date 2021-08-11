@@ -2,26 +2,17 @@
 
 # Introduction
 
+This is the EEG processing pipeline that will be used for the EEG data collected in the multisite [VA TMS study](#https://bmcpsychiatry.biomedcentral.com/articles/10.1186/s12888-020-03030-z). (Linked is the MRI arm of the study. The EEG protocol paper is hitting the presses soon!)
+
 The main software used is the [MNE](https://github.com/mne-tools/mne-python). However matplotlib and other visualization software is commonly used
 
-### Processing steps
+This pipeine may not extend to your study!
 
-1.) A high pass filter of 0.3Hz, a low pass filter of 100Hz
+### [Processing steps](preprocess)
 
-2.) 60Hz Notch filter
+TODO
 
-3.) Downsampled to 500 Hz
-
-4.) Reference to average electrodes
-
-5.) Noisy channels will be identified with [Maxwell filtering](https://mne.tools/stable/generated/mne.preprocessing.find_bad_channels_maxwell.html)
-
-6.) Noisy channels will be replaced via interpolation with neighboring electrodes
-
-7.) Epochs of 2 second sections will be formed
-
-8.) ICA will be run and an attempt to idenify artifacts will be made
-
+The parameters used for this step can be found in the [config.py](#config.py) file.
 
 ### QA
 

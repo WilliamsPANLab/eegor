@@ -47,7 +47,6 @@ def split_eeg(eeg, config):
     eyes_c = eeg.copy().crop(tmin=half, tmax=end)
     crop_eeg(eyes_o, config, trial="open")
     crop_eeg(eyes_c, config, trial="closed")
-    eyes_c.crop(tmin=15, tmax=trial_duration)
     return eyes_o, eyes_c
 
 def crop_eeg(eeg, config, trial=None):
@@ -69,6 +68,11 @@ def crop_eeg(eeg, config, trial=None):
     assert duration + epsilon - expected_duration > 0, f"EEG recording of {duration=} is too short"
 
 def reject(eeg, config):
+    """
+    Please cite Autoreject! The 2nd paper has more info if you can how to choose the n_interpolates and consensus_percs variables
+    [1] Mainak Jas, Denis Engemann, Federico Raimondo, Yousra Bekhti, and Alexandre Gramfort, "Automated rejection and repair of bad trials in MEG/EEG." In 6th International Workshop on Pattern Recognition in Neuroimaging (PRNI), 2016.
+    [2] Mainak Jas, Denis Engemann, Yousra Bekhti, Federico Raimondo, and Alexandre Gramfort. 2017. "Autoreject: Automated artifact rejection for MEG and EEG data". NeuroImage, 159, 417-429.
+    """
     seed = config["seed"]
     n_interpolates = np.array([1, 4, 32])
     consensus_percs = np.linspace(0, 1.0, 11)
