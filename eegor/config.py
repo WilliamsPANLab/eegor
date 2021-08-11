@@ -1,8 +1,8 @@
 config = {
     "root": "/Users/pstetz/Desktop/eeg",
     "notch": [60], # Hz
-    "low_pass": 100 # Hz
-    "high_pass": 2 # Hz
+    "low_pass": 100, # Hz
+    "high_pass": 2, # Hz
     "epoch": 2, # sec
     "eyes_open_start_cut": 15, # sec
     "eyes_closed_start_cut": 15, # sec
