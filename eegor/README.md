@@ -12,7 +12,7 @@ This pipeine may not extend to your study!
 
 TODO
 
-The parameters used for this step can be found in the [config.py](#config.py) file.
+The parameters used for this step can be found in the [config.py](./config.py) file.
 
 ### QA
 

@@ -1,4 +1,4 @@
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 class DuplicateFileError(Exception):
     pass
@@ -19,7 +19,7 @@ def remove_ext(filepath):
     filepath = Path(filepath)
     filename = filepath.name
     if "." not in filename:
-        return filename
+        return filepath
     return filepath.parent / filename.split(".")[0]
 
 def replace_ext(filepath, ext):
