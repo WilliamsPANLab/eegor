@@ -18,7 +18,9 @@ setuptools.setup(
         "numpy>=1.18.1",
         "pandas>=0.23.4",
         "tqdm>=4.31.1",
-        "scipy>=1.4.1"
+        "scipy>=1.4.1",
+        "mne>=0.23.0",
+        "autoreject>=0.2.2",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
