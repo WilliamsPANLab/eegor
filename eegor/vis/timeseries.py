@@ -78,11 +78,11 @@ def plot_eeg_channels(signal, dst, title, config):
         end   = max_channels * (i + 1)
         label = f"Channels {start} to {end}"
         button = dict(
-                     label = label
-                     method = 'update',
+                     label = label,
+                     method = "update",
                      args = [
-                         {'visible': visibility},
-                         {'title': label}
+                         {"visible": visibility},
+                         {"title": label}
                          ]
                      )
         buttons.append(button)
@@ -93,7 +93,7 @@ def plot_eeg_channels(signal, dst, title, config):
             # Darn, the `range` variable isn't working
             rangeslider={"visible": True, "range": [0, 30], "autorange": False},
         ),
-        yaxis={'visible': False, 'showticklabels': False},
+        yaxis={"visible": False, "showticklabels": False},
         updatemenus=[go.layout.Updatemenu(buttons=buttons)]
     )
     fig.write_html(dst)
