@@ -1,4 +1,5 @@
 import mne
+import numpy as np
 from pathlib import Path
 from autoreject import AutoReject
 from eegor.utils.os import DuplicateFileError, MissingFileError, find_file
@@ -8,7 +9,7 @@ def preprocess(eeg, config):
     notch = config["notch"]
     low_pass = config["low_pass"]
     high_pass = config["high_pass"]
-    assert low_pass < high_pass, "low_pass should be less than high_pass. {low_pass=} {high_pass=}"
+    assert high_pass < low_pass, "high_pass should be less than low_pass. {high_pass=} {low_pass=}"
     tmp = eeg.copy().filter(high_pass, low_pass)
     tmp = tmp.notch_filter(notch)
     tmp = tmp.set_eeg_reference(ref_channels="average")
@@ -36,9 +37,9 @@ def get_marker_timepoints(eeg):
     end: EEG recording has ended
     """
     df = eeg.annotations.to_data_frame()
-    start = df[df["description"] == "1003"]["onset"].iloc[0]
+    start = df[df["description"] == "0"]["onset"].min()
     half  = (df[df["description"] == "1004"]["onset"].iloc[0] - start).total_seconds()
-    end   = (df[df["description"] == "1002"]["onset"].iloc[0] - start).total_seconds()
+    end = (df[df["description"] == "0"]["onset"].max() - start).total_seconds()
     return 0, half, end
 
 def split_eeg(eeg, config):
@@ -61,7 +62,7 @@ def crop_eeg(eeg, config, trial=None):
     if f"eyes_{trial}_start_cut" in config:
         start = config[f"eyes_{trial}_start_cut"]
         eeg.crop(tmin=start, tmax=None)
-    if f"eyes_{trial_end_cut}" in config
+    if f"eyes_{trial}_end_cut" in config:
         end = config[f"eyes_{trial}_start_cut"]
         eeg.crop(tmin=0, tmax=max(eeg.times) - end)
     duration = max(eeg.times)
@@ -69,6 +70,10 @@ def crop_eeg(eeg, config, trial=None):
 
 def reject(eeg, config):
     """
+    We will denote by κ the maximum number of bad sensors in a non-rejected
+    trial and by ρ the maximum number of sensors that can be interpolated
+    i.e. ρ are n_interpolates and κ are consensus_percs
+
     Please cite Autoreject! The 2nd paper has more info if you can how to choose the n_interpolates and consensus_percs variables
     [1] Mainak Jas, Denis Engemann, Federico Raimondo, Yousra Bekhti, and Alexandre Gramfort, "Automated rejection and repair of bad trials in MEG/EEG." In 6th International Workshop on Pattern Recognition in Neuroimaging (PRNI), 2016.
     [2] Mainak Jas, Denis Engemann, Yousra Bekhti, Federico Raimondo, and Alexandre Gramfort. 2017. "Autoreject: Automated artifact rejection for MEG and EEG data". NeuroImage, 159, 417-429.
@@ -76,11 +81,10 @@ def reject(eeg, config):
     seed = config["seed"]
     n_interpolates = np.array([1, 4, 32])
     consensus_percs = np.linspace(0, 1.0, 11)
-    picks = mne.pick_types(eeg.info, meg=False, eeg=True, stim=False, eog=False, ecg=False)
-    ar = AutoReject(thresh_method="random_search", random_state=seed)
-    ar.fit(eeg)
-    clean = ar.transform(eeg)
-    return clean
+    picks = mne.pick_types(eeg.info, meg=False, eeg=True, stim=False, eog=True, ecg=False)
+    ar = AutoReject(thresh_method="random_search", random_state=seed, verbose="tqdm")
+    clean, return_log = ar.fit_transform(eeg, return_log=True)
+    return ar, return_log, clean
 
 def preproc(config):
     root = Path(config["root"])
