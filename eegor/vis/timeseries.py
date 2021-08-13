@@ -1,3 +1,4 @@
+from math import ceil
 import numpy as np
 import plotly.graph_objects as go
 from scipy.signal import detrend
@@ -54,18 +55,37 @@ def plot_eeg_channels(signal, dst, title, config):
     signal = signal.resample(plot_downsample)
     data   = signal.get_data()
     times = signal.times
+    channels = signal.info["chs"]
+    N = len(channels)
 
-    for ch in range(max_channels):
-        y = pretty_eeg(data[ch], ch)
-        name = signal.info["chs"][ch]["ch_name"]
+    for i, ch in enumerate(channels):
+        y = pretty_eeg(data[i], i)
+        name = ch["ch_name"]
+        visible = 0 == i // max_channels
         fig.add_trace(
-            go.Scatter(x=times, y=y, name=name)
+            go.Scatter(x=times, y=y, name=name, visible=visible)
         )
 
     # Set title
-    fig.update_layout(
-        title_text=title
-    )
+    fig.update_layout(title_text=title)
+
+    # 64 channels is way too much so group the channels by `max_channel`
+    # and switch between the groups with these buttons
+    buttons = []
+    for i in range(ceil(N / max_channels)):
+        visibility = [i==(j // max_channels) for j in range(N)]
+        start = max_channels * i
+        end   = max_channels * (i + 1)
+        label = f"Channels {start} to {end}"
+        button = dict(
+                     label = label
+                     method = 'update',
+                     args = [
+                         {'visible': visibility},
+                         {'title': label}
+                         ]
+                     )
+        buttons.append(button)
 
     # Add range slider
     fig.update_layout(
@@ -73,7 +93,7 @@ def plot_eeg_channels(signal, dst, title, config):
             # Darn, the `range` variable isn't working
             rangeslider={"visible": True, "range": [0, 30], "autorange": False},
         ),
-        yaxis={'visible': False, 'showticklabels': False}
+        yaxis={'visible': False, 'showticklabels': False},
+        updatemenus=[go.layout.Updatemenu(buttons=buttons)]
     )
     fig.write_html(dst)
-
