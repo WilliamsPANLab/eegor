@@ -35,10 +35,9 @@ def create_raw_eeg(fp):
     if Path(dst).is_file():
         return
     eeg = load_data(fp)
-    eeg = eeg.set_montage("standard_1020", verbose=True)
     eeg.save(dst)
 
-def load_data(fp, preload=True, eog=["EOG"]):
+def load_data(fp, preload=True, eog=["EOG"], montage="standard_1020"):
     """
     Loads the filepath as an MNE raw object.
     NOTE: In the VA multisite EEG TMS study, one channel of EOG is also recorded
@@ -55,4 +54,6 @@ def load_data(fp, preload=True, eog=["EOG"]):
     else:
         msg = f"Cannot read {fp}. Can only read data from the following extensions: ['.cnt', '.edf', '.fif']"
         raise NotImplementedError(msg)
+    if montage:
+        eeg = eeg.set_montage(montage, verbose=True)
     return eeg
