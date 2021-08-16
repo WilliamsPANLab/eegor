@@ -11,8 +11,11 @@ config = {
     "trial_duration": 285, # sec
     # If the EEG duration is less than this throw an error (FIXME: or record it somewhere)
     "duration_epsilon": 1, # sec
-    "seed": 42,
+    "seed": 5,
     "num_ica_components": 64, # channels
+    "plot_downsample": 10, # Hz
+    "plot_max_channels": 16, # channels
+    "subject": ["pat2"]
 }
 config["root"] = Path(config["root"])
 

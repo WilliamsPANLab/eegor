@@ -103,7 +103,7 @@ def plot_eeg_channels(signal, dst, title, config):
     )
     fig.write_html(dst)
 
-def reject_plot(acq, ar_log, interval, dst, config):
+def plot_rejects(acq, ar_log, interval, dst, config):
     """
     Saves a plotly figure for all EEG channels in signal
     Parameters
