@@ -57,3 +57,7 @@ def load_data(fp, preload=True, eog=["EOG"], montage="standard_1020"):
     if montage:
         eeg = eeg.set_montage(montage, verbose=True)
     return eeg
+
+def get_interval(epochs):
+    """ Retrieves the length of each epoch """
+    return max(epochs.times) + epochs.times[1]
