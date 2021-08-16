@@ -3,7 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy.signal import detrend
 
-def pretty_eeg(channel, index, thresh=1e-16, offset_factor=4):
+def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16, offset_factor=4):
     """
     Unfortunately, the raw EEG signal can't be plotted as is, it won't
     be deceipherable by anyone. EEG signal gets better over time so
@@ -22,13 +22,18 @@ def pretty_eeg(channel, index, thresh=1e-16, offset_factor=4):
         If the standard deviation is less than this value, the channel is considered flat
     offset_factor : float, optional
         Determines how much y-axis separation is between two neighboring channels
+
+    Returns
+    -------
+    The beautified eeg signal ready to plot
     """
     std = channel.std()
     offset = index * offset_factor
     if np.allclose(std, thresh):
         return channel - offset
-    channel = detrend(channel)
-    std = channel.std() # get std again because detrending changes this value
+    if use_detrend:
+        channel = detrend(channel)
+        std = channel.std() # get std again because detrending changes this value
     return (channel / std) - offset
 
 
@@ -95,5 +100,84 @@ def plot_eeg_channels(signal, dst, title, config):
         ),
         yaxis={"visible": False, "showticklabels": False},
         updatemenus=[go.layout.Updatemenu(buttons=buttons)]
+    )
+    fig.write_html(dst)
+
+def reject_plot(acq, ar_log, interval, dst, config):
+    """
+    Saves a plotly figure for all EEG channels in signal
+    Parameters
+    ----------
+    acq: mne.io.cnt.cnt.RawCNT
+        The preprocessed EEG object to plot
+    ar_log : autoreject.autoreject.RejectLog
+        The return object generated after running Autoreject
+    interval : float
+        The length of each epoch in seconds
+    dst : str
+        The location where to save the report
+    config : dict
+        Configuration values given in `eegor/config.py`
+    """
+    # quicker plotly by resampling
+    plot_downsample = config["plot_downsample"]
+    # separate channels by tab
+    max_channels = config["plot_max_channels"]
+
+    sampling = acq.info["sfreq"]
+    tmp = acq.copy().resample(plot_downsample)
+    data = tmp.get_data()
+    times = tmp.times
+
+    labels   = ar_log.labels
+    channels = ar_log.ch_names
+    bads     = ar_log.bad_epochs
+    N1 = labels.shape[1]
+    N2 = labels.shape[0]
+
+    fig = go.Figure()
+    for i, channel in tqdm(enumerate(channels), total=N1):
+        signal = pretty_eeg(data[i], i)
+        visible = 0 == i // max_channels
+        for j, epoch in enumerate(labels[:, i]):
+            indices = np.argwhere(np.logical_and(
+                times > j * interval,
+                times < (j+1)*interval)).flatten(
+            )
+            # needed to connect each epoch to the next
+            indices = np.append(indices, [max(indices)+1, max(indices)+2])
+            x = times[indices]
+            y = signal[indices]
+            if np.isnan(epoch) or bads[j]:
+                color="red"
+            else:
+                color = {0: "black", 1: "red", 2: "gray"}[epoch]
+            fig.add_trace(
+                go.Scatter(x=x, y=y, name=channel, visible=visible, line=dict(color=color))
+            )
+
+    # 64 channels is way too much so group the channels by `max_channel`
+    # and switch between the groups with these buttons
+    buttons = []
+    for i in range(ceil(N1 / max_channels)):
+        visibility = [i==(j // max_channels) for j in range(N1) for _ in range(N2)]
+        start = (max_channels * i) + 1
+        end   = max_channels * (i + 1)
+        label = f"Channels {start} to {end}"
+        button = dict(
+                     label = label,
+                     method = "update",
+                     args = [
+                         {"visible": visibility},
+                         {"title": label}
+                         ]
+                     )
+        buttons.append(button)
+
+    fig.update_layout(
+        xaxis=dict(rangeslider={"visible": True}),
+        yaxis={"visible": False, "showticklabels": False},
+        updatemenus=[go.layout.Updatemenu(buttons=buttons)],
+        showlegend=False
     )
     fig.write_html(dst)
