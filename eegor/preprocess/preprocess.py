@@ -1,9 +1,6 @@
 import mne
 import numpy as np
-from pathlib import Path
 from autoreject import AutoReject
-from eegor.utils.os import DuplicateFileError, MissingFileError, find_file
-from eegor.utils.eeg import load_data
 
 def preprocess(eeg, config):
     notch = config["notch"]
@@ -68,7 +65,7 @@ def crop_eeg(eeg, config, trial=None):
     duration = max(eeg.times)
     assert duration + epsilon - expected_duration > 0, f"EEG recording of {duration=} is too short"
 
-def reject(eeg, config, verbose="tqdm"):
+def reject(epochs, config, verbose="tqdm"):
     """
     We will denote by κ the maximum number of bad sensors in a non-rejected
     trial and by ρ the maximum number of sensors that can be interpolated
@@ -81,16 +78,5 @@ def reject(eeg, config, verbose="tqdm"):
     seed = config["seed"]
     picks = mne.pick_types(eeg.info, meg=False, eeg=True, stim=False, eog=True, ecg=False)
     ar = AutoReject(thresh_method="random_search", random_state=seed, verbose=verbose)
-    clean, return_log = ar.fit_transform(eeg, return_log=True)
+    clean, return_log = ar.fit_transform(epochs, return_log=True)
     return ar, return_log, clean
-
-def preproc(config):
-    root = Path(config["root"])
-    fp = find_file(root / subject, "*.cnt")
-    eeg = load_data(fp)
-    eo, ec = split_eeg(eeg, config)
-    pec = preprocess(ec, config)
-    peo = preprocess(eoconfig)
-
-if __name__ == "__main__":
-    preproc(root)
