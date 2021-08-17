@@ -27,7 +27,7 @@ def ica(epochs, config):
     ica.fit(epochs)
     ica.plot_sources(epochs, show_scrollbars=True)
 
-def get_marker_timepoints(eeg):
+def get_marker_timepoint(eeg):
     """
     start: EEG recording has started
     half: transition period from eyes open to eyes closed
@@ -37,12 +37,12 @@ def get_marker_timepoints(eeg):
     start = df[df["description"] == "0"]["onset"].min()
     half  = (df[df["description"] == "1004"]["onset"].iloc[0] - start).total_seconds()
     end = (df[df["description"] == "0"]["onset"].max() - start).total_seconds()
-    return 0, half, end
+    return half
 
 def split_eeg(eeg, config):
-    start, half, end = get_marker_timepoints(eeg)
-    eyes_o = eeg.copy().crop(tmin=start, tmax=half)
-    eyes_c = eeg.copy().crop(tmin=half, tmax=end)
+    half = get_marker_timepoint(eeg)
+    eyes_o = eeg.copy().crop(tmin=0, tmax=half)
+    eyes_c = eeg.copy().crop(tmin=half, tmax=None)
     crop_eeg(eyes_o, config, trial="open")
     crop_eeg(eyes_c, config, trial="closed")
     return eyes_o, eyes_c
