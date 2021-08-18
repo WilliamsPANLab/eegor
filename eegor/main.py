@@ -8,17 +8,16 @@ from eegor.vis.report import raw_report, autoreject_report
 def preproc(config, acq, subject):
     root = config["root"]
     dst = root / "reports" / subject / "raw.html"
-    raw_report(acq, config, dst)
+    raw_report(acq.copy(), config, dst)
     eo, ec = preprocess.split_eeg(acq, config)
     for trial, raw in [("open", eo), ("closed", ec)]:
-        if trial == "closed": continue
         preprocess.crop_eeg(raw, config, trial=trial)
         processed = preprocess.preprocess(raw, config)
         epochs    = preprocess.epoch(processed, config)
         ar, log, clean = preprocess.reject(epochs, config)
 
         dst = root / "reports" / subject / f"{trial}_rejected.html"
-        autoreject_report(processed, log, epochs, dst, config)
+        autoreject_report(processed.copy(), log, epochs, dst, config)
 
 def main():
     root     = config["root"]

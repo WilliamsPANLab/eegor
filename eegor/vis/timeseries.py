@@ -2,6 +2,7 @@ from math import ceil
 import numpy as np
 import plotly.graph_objects as go
 from scipy.signal import detrend
+from tqdm import tqdm
 
 def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16, offset_factor=4):
     """
