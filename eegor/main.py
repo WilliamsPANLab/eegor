@@ -3,7 +3,7 @@ from eegor.utils.os import find_file
 from eegor.utils.eeg import load_data
 from eegor.config import config
 import eegor.preprocess.preprocess as preprocess
-from eegor.vis.report import raw_report, autoreject_report
+from eegor.vis.report import raw_report, autoreject_report, frequency_report
 
 def preproc(config, acq, subject):
     root = config["root"]
@@ -18,6 +18,8 @@ def preproc(config, acq, subject):
 
         dst = root / "reports" / subject / f"{trial}_rejected.html"
         autoreject_report(processed.copy(), log, epochs, dst, config)
+        dst = root / "reports" / subject / f"{trial}_freq.png"
+        frequency_report(clean, config, f"Eyes {trial}", dst)
 
 def main():
     root     = config["root"]
