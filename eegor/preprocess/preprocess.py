@@ -63,7 +63,8 @@ def crop_eeg(eeg, config, trial=None):
         end = config[f"eyes_{trial}_start_cut"]
         eeg.crop(tmin=0, tmax=max(eeg.times) - end)
     duration = max(eeg.times)
-    assert duration + epsilon - expected_duration > 0, f"EEG recording of {duration=} is too short"
+    if duration + epsilon - expected_duration < 0:
+        print(f"EEG recording of {duration=} is too short")
 
 def reject(epochs, config, verbose="tqdm"):
     """
