@@ -119,6 +119,15 @@ def plot_rejects(acq, ar_log, interval, dst, config):
         The location where to save the report
     config : dict
         Configuration values given in `eegor/config.py`
+
+    Autoreject codes the status of channels/epochs in its return
+    log instead of labeling them. The codes are currently
+    {
+        0: "good",
+        1: "bad",
+        2: "interpolated",
+    }
+    https://github.com/autoreject/autoreject/blob/c3f5a8186ed15fd7e16a4f44d36a3f22390ee2c4/autoreject/autoreject.py#L1226-L1228),
     """
     # quicker plotly by resampling
     plot_downsample = config["plot_downsample"]
