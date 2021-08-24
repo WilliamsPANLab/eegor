@@ -4,24 +4,27 @@ import numpy as np
 from pathlib import Path
 from time import strftime
 
+
 config = {
-    "root": "/Users/pstetz/Desktop/eeg",
-    "notch": [60], # Hz
-    "low_pass": 100, # Hz
-    "high_pass": 2, # Hz
-    "epoch": 2, # sec
-    "eyes_open_start_cut": 15, # sec
-    "eyes_closed_start_cut": 15, # sec
-    "trial_duration": 285, # sec
-    # If the EEG duration is less than this throw an error (FIXME: or record it somewhere)
-    "duration_epsilon": 1, # sec
+    "root": "/Users/pstetz/Desktop/eeg/minnesota",
+    "notch": [60],  # Hz
+    "low_pass": 100,  # Hz
+    "high_pass": 2,  # Hz
+    "epoch": 2,  # sec
+    "eyes_open_start_cut": 15,  # sec
+    "eyes_closed_start_cut": 15,  # sec
+    "trial_duration": 285,  # sec
+    # If the EEG duration is less than this throw an error
+    # FIXME: or record it somewhere
+    "duration_epsilon": 1,  # sec
     "seed": 5,
-    "num_ica_components": 64, # channels
-    "plot_downsample": 10, # Hz
-    "plot_max_channels": 16, # channels
-    "subjects": ["pat2"]
+    "num_ica_components": 64,  # channels
+    "plot_downsample": 10,  # Hz
+    "plot_max_channels": 16,  # channels
+    "subjects": ["visit1", "visit4", "visit5", "visit6", "visit7"]
 }
 config["root"] = Path(config["root"])
+
 
 class _Config:
     """An abstract class forbidding instantiation."""
@@ -64,6 +67,7 @@ class _Config:
             out[k] = v
         return out
 
+
 class environment(_Config):
     """
     Read-only options regarding the platform and environment.
@@ -76,15 +80,16 @@ class environment(_Config):
 
     cpu_count = os.cpu_count()
     """Number of available CPUs."""
-    #version = __version__
+    # version = __version__
     """*EEGOR*'s version."""
+
 
 class seeds(_Config):
     """Initialize the PRNG and track random seed assignments"""
 
     _random_seed = None
     master = None
-    """Master random seed to initialize the Pseudorandom Number Generator (PRNG)"""
+    """Master random seed to initialize the Pseudorandom Number Generator"""
     numpy = None
     """Seed used by NumPy"""
 
@@ -98,11 +103,13 @@ class seeds(_Config):
         # functions to set program specific seeds
         cls.numpy = _set_numpy_seed()
 
+
 def _set_numpy_seed():
     """NumPy's random seed is independant from Python's `random` module"""
     val = random.randint(1, 65536)
     np.random.seed(val)
     return val
+
 
 def get(flat=False):
     """Get config as a dict."""
@@ -120,6 +127,7 @@ def get(flat=False):
         for section, configs in settings.items()
         for k, v in configs.items()
     }
+
 
 def to_filename(filename):
     """Write settings to file."""

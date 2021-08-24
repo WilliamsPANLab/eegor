@@ -4,7 +4,9 @@ import plotly.graph_objects as go
 from scipy.signal import detrend
 from tqdm import tqdm
 
-def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16, offset_factor=4):
+
+def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16,
+               offset_factor=4):
     """
     Unfortunately, the raw EEG signal can't be plotted as is, it won't
     be deceipherable by anyone. EEG signal gets better over time so
@@ -20,9 +22,11 @@ def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16, offset_factor=4):
     index : int
         The index placement of this channel (used to y-axis separate channels)
     thresh : float, optional
-        If the standard deviation is less than this value, the channel is considered flat
+        If the standard deviation is less than this value, the channel is
+        considered flat
     offset_factor : float, optional
-        Determines how much y-axis separation is between two neighboring channels
+        Determines how much y-axis separation is between two neighboring
+        channels
 
     Returns
     -------
@@ -34,7 +38,8 @@ def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16, offset_factor=4):
         return channel - offset
     if use_detrend:
         channel = detrend(channel)
-        std = channel.std() # get std again because detrending changes this value
+        # get std again because detrending changes this value
+        std = channel.std()
     return (channel / std) - offset
 
 
@@ -59,7 +64,7 @@ def plot_eeg_channels(signal, dst, title, config):
 
     fig = go.Figure()
     signal = signal.resample(plot_downsample)
-    data   = signal.get_data()
+    data = signal.get_data()
     times = signal.times
     channels = signal.info["chs"]
     N = len(channels)
@@ -79,14 +84,14 @@ def plot_eeg_channels(signal, dst, title, config):
     # and switch between the groups with these buttons
     buttons = []
     for i in range(ceil(N / max_channels)):
-        visibility = [i==(j // max_channels) for j in range(N)]
+        visibility = [i == (j // max_channels) for j in range(N)]
         start = max_channels * i
-        end   = max_channels * (i + 1)
+        end = max_channels * (i + 1)
         label = f"Channels {start} to {end}"
         button = dict(
-                     label = label,
-                     method = "update",
-                     args = [
+                     label=label,
+                     method="update",
+                     args=[
                          {"visible": visibility},
                          {"title": label}
                          ]
@@ -97,12 +102,15 @@ def plot_eeg_channels(signal, dst, title, config):
     fig.update_layout(
         xaxis=dict(
             # Darn, the `range` variable isn't working
-            rangeslider={"visible": True, "range": [0, 30], "autorange": False},
+            rangeslider={
+                "visible": True, "range": [0, 30], "autorange": False
+            },
         ),
         yaxis={"visible": False, "showticklabels": False},
         updatemenus=[go.layout.Updatemenu(buttons=buttons)]
     )
     fig.write_html(dst)
+
 
 def plot_rejects(acq, ar_log, interval, dst, config):
     """
@@ -134,14 +142,13 @@ def plot_rejects(acq, ar_log, interval, dst, config):
     # separate channels by tab
     max_channels = config["plot_max_channels"]
 
-    sampling = acq.info["sfreq"]
     tmp = acq.copy().resample(plot_downsample)
     data = tmp.get_data()
     times = tmp.times
 
-    labels   = ar_log.labels
+    labels = ar_log.labels
     channels = ar_log.ch_names
-    bads     = ar_log.bad_epochs
+    bads = ar_log.bad_epochs
     N1 = labels.shape[1]
     N2 = labels.shape[0]
 
@@ -159,25 +166,29 @@ def plot_rejects(acq, ar_log, interval, dst, config):
             x = times[indices]
             y = signal[indices]
             if np.isnan(epoch) or bads[j]:
-                color="red"
+                color = "red"
             else:
                 color = {0: "black", 1: "red", 2: "gray"}[epoch]
             fig.add_trace(
-                go.Scatter(x=x, y=y, name=channel, visible=visible, line=dict(color=color))
+                go.Scatter(
+                    x=x, y=y, name=channel, visible=visible,
+                    line=dict(color=color)
+                )
             )
 
     # 64 channels is way too much so group the channels by `max_channel`
     # and switch between the groups with these buttons
     buttons = []
     for i in range(ceil(N1 / max_channels)):
-        visibility = [i==(j // max_channels) for j in range(N1) for _ in range(N2)]
+        visibility = [i == (j // max_channels)
+                      for j in range(N1) for _ in range(N2)]
         start = (max_channels * i) + 1
-        end   = max_channels * (i + 1)
+        end = max_channels * (i + 1)
         label = f"Channels {start} to {end}"
         button = dict(
-                     label = label,
-                     method = "update",
-                     args = [
+                     label=label,
+                     method="update",
+                     args=[
                          {"visible": visibility},
                          {"title": label}
                          ]

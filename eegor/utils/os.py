@@ -1,10 +1,13 @@
 from pathlib import Path, PosixPath
 
+
 class DuplicateFileError(Exception):
     pass
 
+
 class MissingFileError(Exception):
     pass
+
 
 def find_file(folder, regex: str):
     matches = list(Path(folder).glob(regex))
@@ -15,6 +18,7 @@ def find_file(folder, regex: str):
     else:
         return matches.pop()
 
+
 def remove_ext(filepath):
     filepath = Path(filepath)
     filename = filepath.name
@@ -22,11 +26,12 @@ def remove_ext(filepath):
         return filepath
     return filepath.parent / filename.split(".")[0]
 
+
 def replace_ext(filepath, ext):
     orig_type = type(filepath)
     filepath_wo_ext = remove_ext(filepath)
     if orig_type == str:
-        return str(filepath) + ext
+        return str(filepath_wo_ext) + ext
     elif orig_type == PosixPath:
-        return Path(str(filepath) + ext)
+        return Path(str(filepath_wo_ext) + ext)
     raise TypeError(f"Cannot coerce {filepath} to type {orig_type}")

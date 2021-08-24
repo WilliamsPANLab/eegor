@@ -1,11 +1,13 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set()
 from tqdm import tqdm
 from eegor.vis.timeseries import plot_eeg_channels, plot_rejects
 from eegor.utils.eeg import get_interval
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
 
-def frequency_report(epochs, config, title, dst, figsize=(14, 8), labelsize=24, titlesize=32):
+
+def frequency_report(epochs, config, title, dst, figsize=(14, 8),
+                     labelsize=24, titlesize=32):
     fig, ax = plt.subplots(figsize=figsize)
     fig = epochs.plot_psd(
             fmin=config["high_pass"],
@@ -19,6 +21,7 @@ def frequency_report(epochs, config, title, dst, figsize=(14, 8), labelsize=24, 
     ax.set_ylim([5, 50])
     fig.savefig(dst)
 
+
 def raw_plot(raw, dst):
     width, height = 2**8, 8
     skip = 20
@@ -30,17 +33,18 @@ def raw_plot(raw, dst):
         axarr[i].plot(times[::skip], data[i, ::skip])
         axarr[i].set_xlim([min(times), max(times)])
         axarr[i].set_xticks(range(int(min(times)), int(max(times)), 10))
-        axarr[i].set_ylabel(eo.info["chs"][i]["ch_name"], fontsize=32)
+        axarr[i].set_ylabel(raw.info["chs"][i]["ch_name"], fontsize=32)
     plt.tight_layout()
     plt.savefig(dst)
+
 
 def raw_report(raw, config, dst):
     title = "Raw"
     dst.parent.mkdir(exist_ok=True, parents=True)
     plot_eeg_channels(raw, str(dst), title, config)
 
+
 def autoreject_report(acq, ar_log, epochs, dst, config):
-    title = "Autorejected"
     dst.parent.mkdir(exist_ok=True, parents=True)
     interval = get_interval(epochs)
     plot_rejects(acq, ar_log, interval, str(dst), config)
