@@ -12,7 +12,8 @@ def preproc(config, acq, subject):
     eo, ec = preprocess.split_eeg(acq, config)
     for trial, raw in [("open", eo), ("closed", ec)]:
         preprocess.crop_eeg(raw, config, trial=trial)
-        processed = preprocess.preprocess(raw, config)
+        processed = preprocess.run_filters(raw, config)
+        processed = preprocess.rereference(processed)
         epochs = preprocess.epoch(processed, config)
         ar, log, clean = preprocess.reject(epochs, config)
 

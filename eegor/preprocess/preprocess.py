@@ -1,17 +1,19 @@
 import mne
+import logging
 from autoreject import AutoReject
 
 
-def preprocess(eeg, config):
+def run_filters(acq, config):
     notch = config["notch"]
     low_pass = config["low_pass"]
     high_pass = config["high_pass"]
     assert high_pass < low_pass, ("high_pass should be less than low_pass. "
                                   f"{high_pass=} {low_pass=}")
-    tmp = eeg.copy().filter(high_pass, low_pass)
-    tmp = tmp.notch_filter(notch)
-    tmp = tmp.set_eeg_reference(ref_channels="average")
-    return tmp
+    return acq.copy().filter(high_pass, low_pass).notch_filter(notch)
+
+
+def rereference(acq):
+    return acq.set_eeg_reference(ref_channels="average")
 
 
 def epoch(eeg, config):
@@ -23,38 +25,29 @@ def epoch(eeg, config):
     return epochs
 
 
-def ica(epochs, config):
-    seed = config["seed"]
-    N = config["num_ica_components"]
-    ica = mne.preprocessing.ICA(n_components=N, max_iter="auto",
-                                random_state=seed)
-    ica.fit(epochs)
-    ica.plot_sources(epochs, show_scrollbars=True)
-
-
-def get_marker_timepoint(eeg):
+def get_marker_timepoint(acq):
     """
     start: EEG recording has started
     half: transition period from eyes open to eyes closed
     end: EEG recording has ended
     """
-    df = eeg.annotations.to_data_frame()
+    df = acq.annotations.to_data_frame()
     start = df[df["description"] == "0"]["onset"].min()
     half = ((df[df["description"] == "1004"]["onset"].iloc[0] - start)
             .total_seconds())
     return half
 
 
-def split_eeg(eeg, config):
+def split_eeg(acq, config):
     half = get_marker_timepoint(eeg)
-    eyes_o = eeg.copy().crop(tmin=0, tmax=half)
-    eyes_c = eeg.copy().crop(tmin=half, tmax=None)
+    eyes_o = acq.copy().crop(tmin=0, tmax=half)
+    eyes_c = acq.copy().crop(tmin=half, tmax=None)
     crop_eeg(eyes_o, config, trial="open")
     crop_eeg(eyes_c, config, trial="closed")
     return eyes_o, eyes_c
 
 
-def crop_eeg(eeg, config, trial=None):
+def crop_eeg(acq, config, trial=None):
     """
     TODO: below is if we cared about having the durations all be the same
     eeg.crop(tmin=max(times) - trial_duration, tmax=max(times) - 15)
@@ -66,11 +59,11 @@ def crop_eeg(eeg, config, trial=None):
     expected_duration = config["trial_duration"]
     if f"eyes_{trial}_start_cut" in config:
         start = config[f"eyes_{trial}_start_cut"]
-        eeg.crop(tmin=start, tmax=None)
+        acq.crop(tmin=start, tmax=None)
     if f"eyes_{trial}_end_cut" in config:
         end = config[f"eyes_{trial}_start_cut"]
-        eeg.crop(tmin=0, tmax=max(eeg.times) - end)
-    duration = max(eeg.times)
+        acq.crop(tmin=0, tmax=max(eeg.times) - end)
+    duration = max(acq.times)
     if duration + epsilon - expected_duration < 0:
         print(f"EEG recording of {duration=} is too short")
 
