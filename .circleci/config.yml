@@ -33,7 +33,11 @@ jobs:
       - checkout
       - run:
           name: Run tests
-          # This assumes pytest is installed via the install-package step above
           command: |
             pip install .
             pytest
+      - run:
+          name: flake8
+          command: |
+            pip install .
+            flake8
