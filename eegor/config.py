@@ -158,7 +158,7 @@ def get(flat=False):
     settings = {
         "environment": environment.get(),
         "execution": execution.get(),
-        "workflow": workflow.get(),
+        # "workflow": workflow.get(),
         "seeds": seeds.get(),
     }
     if not flat:
@@ -174,4 +174,4 @@ def get(flat=False):
 def to_filename(filename):
     """Write settings to file."""
     filename = Path(filename)
-    filename.write_text(dumps())
+    # filename.write_text(dumps())

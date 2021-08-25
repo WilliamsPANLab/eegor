@@ -1,5 +1,5 @@
 import mne
-import logging
+# import logging
 
 
 def run_filters(acq, config):
@@ -38,7 +38,7 @@ def get_marker_timepoint(acq):
 
 
 def split_eeg(acq, config):
-    half = get_marker_timepoint(eeg)
+    half = get_marker_timepoint(acq)
     eyes_o = acq.copy().crop(tmin=0, tmax=half)
     eyes_c = acq.copy().crop(tmin=half, tmax=None)
     crop_eeg(eyes_o, config, trial="open")
@@ -61,7 +61,7 @@ def crop_eeg(acq, config, trial=None):
         acq.crop(tmin=start, tmax=None)
     if f"eyes_{trial}_end_cut" in config:
         end = config[f"eyes_{trial}_start_cut"]
-        acq.crop(tmin=0, tmax=max(eeg.times) - end)
+        acq.crop(tmin=0, tmax=max(acq.times) - end)
     duration = max(acq.times)
     if duration + epsilon - expected_duration < 0:
         print(f"EEG recording of {duration=} is too short")
