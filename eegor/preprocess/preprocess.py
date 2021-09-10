@@ -7,7 +7,7 @@ def run_filters(acq, config):
     low_pass = config["low_pass"]
     high_pass = config["high_pass"]
     assert high_pass < low_pass, ("high_pass should be less than low_pass. "
-                                  f"{high_pass=} {low_pass=}")
+                                  f"high_pass={high_pass} low_path={low_pass}")
     return acq.copy().filter(high_pass, low_pass).notch_filter(notch)
 
 
@@ -52,7 +52,7 @@ def crop_eeg(acq, config, trial=None):
     eeg.crop(tmin=max(times) - trial_duration, tmax=max(times) - 15)
     """
     valid_trials = ["open", "closed"]
-    assert trial in valid_trials, (f"{trial=} is not a valid option. "
+    assert trial in valid_trials, (f"trial={trial} is not a valid option. "
                                    f"Choose from {valid_trials}")
     epsilon = config["duration_epsilon"]
     expected_duration = config["trial_duration"]
@@ -64,4 +64,4 @@ def crop_eeg(acq, config, trial=None):
         acq.crop(tmin=0, tmax=max(acq.times) - end)
     duration = max(acq.times)
     if duration + epsilon - expected_duration < 0:
-        print(f"EEG recording of {duration=} is too short")
+        print(f"EEG recording of duration={duration} is too short")

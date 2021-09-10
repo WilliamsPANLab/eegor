@@ -55,7 +55,7 @@ def plot_eeg_channels(signal, dst, title, config):
     title : str
         The title that will appear in the Plotly figure
     config : dict
-        Configuration values given in `eegor/config.py`
+        Configuration values
     """
     # quicker plotly by resampling
     plot_downsample = config["plot_downsample"]
@@ -126,7 +126,7 @@ def plot_rejects(acq, ar_log, interval, dst, config):
     dst : str
         The location where to save the report
     config : dict
-        Configuration values given in `eegor/config.py`
+        Configuration values
 
     Autoreject codes the status of channels/epochs in its return
     log instead of labeling them. The codes are currently
