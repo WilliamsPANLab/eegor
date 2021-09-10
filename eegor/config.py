@@ -8,7 +8,7 @@ from time import strftime
 
 
 config = {
-    "root": "/Users/pstetz/Desktop/eeg/minnesota",
+    "root": "/share/leanew1/PANLab_Datasets/tms/eeg/pilots/wrj",
     "notch": [60],  # Hz
     "low_pass": 100,  # Hz
     "high_pass": 2,  # Hz
@@ -23,7 +23,7 @@ config = {
     "num_ica_components": 64,  # channels
     "plot_downsample": 10,  # Hz
     "plot_max_channels": 16,  # channels
-    "subjects": ["visit1", "visit4", "visit5", "visit6", "visit7"]
+    "subjects": ["test1", "test2", "test3", "test4", "test5"]
 }
 config["root"] = Path(config["root"])
 

@@ -1,7 +1,7 @@
 from setuptools import setup
 import versioneer
 
-SETUP_REQUIRES = ["setuptools >= 40.8"]
+SETUP_REQUIRES = ["setuptools >= 40.8", "wheel"]
 
 if __name__ == "__main__":
     setup(
