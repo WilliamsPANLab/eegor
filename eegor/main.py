@@ -1,7 +1,10 @@
+import imp
+import argparse
+from pathlib import PosixPath
 from eegor.utils.os import find_file
 from eegor.utils.eeg import load_data
-from eegor.config import config
 import eegor.preprocess.preprocess as preprocess
+from eegor.preprocess.reject import reject
 from eegor.vis.report import raw_report, autoreject_report, frequency_report
 
 
@@ -15,15 +18,15 @@ def preproc(config, acq, subject):
         processed = preprocess.run_filters(raw, config)
         processed = preprocess.rereference(processed)
         epochs = preprocess.epoch(processed, config)
-        ar, log, clean = preprocess.reject(epochs, config)
+        ar, log, clean = reject(epochs, config)
 
         dst = root / "reports" / subject / f"{trial}_rejected.html"
         autoreject_report(processed.copy(), log, epochs, dst, config)
         dst = root / "reports" / subject / f"{trial}_freq.png"
-        frequency_report(clean, config, f"Eyes {trial}", dst)
+        frequency_report(epochs, config, f"Eyes {trial}", dst)
 
 
-def main():
+def main(config):
     root = config["root"]
     subjects = config["subjects"]
     for subject in subjects:
@@ -32,5 +35,15 @@ def main():
         preproc(config, acq, subject)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="EEGOR config parser")
+    parser.add_argument("config_path", type=PosixPath,
+                        help="Path to the config file")
+    args = parser.parse_args()
+    config = imp.load_source(args.config_path)
+    return config.config
+
+
 if __name__ == "__main__":
-    main()
+    config = parse_args()
+    main(config)
