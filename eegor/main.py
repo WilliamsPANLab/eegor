@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument("config_path", type=PosixPath,
                         help="Path to the config file")
     args = parser.parse_args()
-    config = imp.load_source(args.config_path)
+    config = imp.load_source(args.config_path.name, str(args.config_path))
     return config.config
 
 
