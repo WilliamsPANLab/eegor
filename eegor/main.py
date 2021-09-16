@@ -1,5 +1,5 @@
-import imp
 import argparse
+import importlib.util
 from pathlib import PosixPath
 from eegor.utils.os import find_file
 from eegor.utils.eeg import load_data
@@ -21,9 +21,9 @@ def preproc(config, acq, subject):
         ar, log, clean = reject(epochs, config)
 
         dst = root / "reports" / subject / f"{trial}_rejected.html"
-        autoreject_report(processed.copy(), log, epochs, dst, config)
+        autoreject_report(processed.copy(), log, clean, dst, config)
         dst = root / "reports" / subject / f"{trial}_freq.png"
-        frequency_report(epochs, config, f"Eyes {trial}", dst)
+        frequency_report(clean, config, f"Eyes {trial}", dst)
 
 
 def main(config):
@@ -31,6 +31,7 @@ def main(config):
     subjects = config["subjects"]
     for subject in subjects:
         fp = find_file(root / subject, "*.cnt")
+        print(fp)
         acq = load_data(fp)
         preproc(config, acq, subject)
 
@@ -40,8 +41,11 @@ def parse_args():
     parser.add_argument("config_path", type=PosixPath,
                         help="Path to the config file")
     args = parser.parse_args()
-    config = imp.load_source(args.config_path.name, str(args.config_path))
-    return config.config
+    config_path = args.config_path
+    loader = importlib.util.spec_from_file_location(config_path.name, str(config_path))
+    module = importlib.util.module_from_spec(loader)
+    loader.loader.exec_module(module)
+    return module.config
 
 
 if __name__ == "__main__":
