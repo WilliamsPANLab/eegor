@@ -29,6 +29,13 @@ def get_marker_timepoint(acq):
     start: EEG recording has started
     half: transition period from eyes open to eyes closed
     end: EEG recording has ended
+
+    codes = {
+            1001: "Start",
+            1002: "End",
+            1003: "Eyes Open",
+            1004: "Eyes Closed"
+            }
     """
     df = acq.annotations.to_data_frame()
     start = df[df["description"] == "0"]["onset"].min()
