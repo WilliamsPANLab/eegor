@@ -42,7 +42,8 @@ def parse_args():
                         help="Path to the config file")
     args = parser.parse_args()
     config_path = args.config_path
-    loader = importlib.util.spec_from_file_location(config_path.name, str(config_path))
+    loader = importlib.util.spec_from_file_location(config_path.name,
+                                                    str(config_path))
     module = importlib.util.module_from_spec(loader)
     loader.loader.exec_module(module)
     return module.config
