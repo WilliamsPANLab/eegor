@@ -18,6 +18,7 @@ def preproc(config, acq, subject):
         processed = preprocess.run_filters(raw, config)
         processed = preprocess.rereference(processed)
         epochs = preprocess.epoch(processed, config)
+        epochs.drop_channels("EOG")  # FIXME: autoreject has a cow otherwise
         ar, log, clean = reject(epochs, config)
 
         dst = root / "reports" / subject / f"{trial}_rejected.html"
