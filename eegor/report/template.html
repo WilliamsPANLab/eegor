@@ -2,17 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SUBJECT</title>
+  <title>{subject}</title>
 </head>
 <body>
   <div>
-    <h1>SUBJECT</h1>
+    <h1>{subject}</h1>
     <h3>Summary statistics</h3>
-    <div>Number of dropped epochs: NUMBER</div>
-    <div>Channels with poor data: CHANNELS</div>
+    <div>Number of dropped epochs: {num_dropped_epochs}</div>
+    <div>Channels with poor data: {num_poor_channels}</div>
     <h3>Visuals</h3>
-    <div>Frequency spectrum for Eyes Open trial</div>
-    <div>Frequency spectrum for Eyes Closed trial</div>
+    <div>
+      <h3>Frequency spectrum for Eyes Open trial</h3>
+      {freq_open_png}
+    </div>
+    <div>
+      <h3>Frequency spectrum for Eyes Closed trial</h3>
+      {freq_closed_png}
+    </div>
   </div>
 </body>
 </html>

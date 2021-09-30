@@ -1,2 +1,3 @@
 include versioneer.py
 include eegor/_version.py
+include *.html

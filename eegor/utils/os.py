@@ -20,6 +20,10 @@ def find_file(folder, regex: str):
 
 
 def remove_ext(filepath):
+    """
+    Removes the extension from a filepath.
+    NOTE: this will fail if "." is part of the filename
+    """
     filepath = Path(filepath)
     filename = filepath.name
     if "." not in filename:
