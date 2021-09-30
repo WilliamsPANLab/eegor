@@ -2,7 +2,7 @@
 Utilities: Jinja2 templates.
 
 Copied from here
-https://github.com/nipreps/mriqc/blob/af3562c63873d17089cb322f59c2924982caa8d6/mriqc/data/config.py
+https://github.com/nipreps/mriqc/blob/af3562c63873d17089cb322f59c2924982caa8d6/mriqc/data/config.py  # noqa: E501
 """
 
 from io import open
@@ -49,4 +49,5 @@ class GroupTemplate(Template):
     """Specific template for the individual report"""
 
     def __init__(self):
-        super(GroupTemplate, self).__init__(pkgrf("eegor", "data/reports/group.html"))
+        super(GroupTemplate, self).__init__(pkgrf("eegor",
+                                                  "data/reports/group.html"))
