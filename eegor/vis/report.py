@@ -6,7 +6,7 @@ import seaborn as sns
 sns.set()
 
 
-def frequency_report(epochs, config, title, dst, figsize=(14, 8),
+def frequency_report(epochs, config, title, figsize=(14, 8),
                      labelsize=24, titlesize=32):
     fig, ax = plt.subplots(figsize=figsize)
     fig = epochs.plot_psd(
@@ -19,7 +19,7 @@ def frequency_report(epochs, config, title, dst, figsize=(14, 8),
     ax.set_ylabel(ylabel, fontsize=labelsize)
     ax.set_title(title, fontsize=titlesize)
     ax.set_ylim([5, 50])
-    fig.savefig(dst)
+    return fig, ax
 
 
 def raw_plot(raw, dst):

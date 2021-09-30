@@ -8,23 +8,32 @@ from eegor.preprocess.reject import reject
 from eegor.vis.report import raw_report, autoreject_report, frequency_report
 
 
-def preproc(config, acq, subject):
+def preprocess(config, acq, subject):
     root = config["root"]
     dst = root / "reports" / subject / "raw.html"
     raw_report(acq.copy(), config, dst)
     eo, ec = preprocess.split_eeg(acq, config)
-    for trial, raw in [("open", eo), ("closed", ec)]:
-        preprocess.crop_eeg(raw, config, trial=trial)
-        processed = preprocess.run_filters(raw, config)
-        processed = preprocess.rereference(processed)
-        epochs = preprocess.epoch(processed, config)
-        epochs.drop_channels("EOG")  # FIXME: autoreject has a cow otherwise
-        ar, log, clean = reject(epochs, config)
 
-        dst = root / "reports" / subject / f"{trial}_rejected.html"
-        autoreject_report(processed.copy(), log, clean, dst, config)
-        dst = root / "reports" / subject / f"{trial}_freq.png"
-        frequency_report(clean, config, f"Eyes {trial}", dst)
+    freq_open_fig = preprocess_trial(eo, "open")
+    freq_closed_fig = preprocess_trial()
+    return freq_open_fig, freq_closed_fig
+    for trial, raw in [("open", eo), ("closed", ec)]:
+        preprocess_trial()
+        pass
+
+
+def preprocess_trial():
+    preprocess.crop_eeg(raw, config, trial=trial)
+    processed = preprocess.run_filters(raw, config)
+    processed = preprocess.rereference(processed)
+    epochs = preprocess.epoch(processed, config)
+    epochs.drop_channels("EOG")  # FIXME: autoreject has a cow otherwise
+    ar, log, clean = reject(epochs, config)
+
+    dst = root / "reports" / subject / f"{trial}_rejected.html"
+    autoreject_report(processed.copy(), log, clean, dst, config)
+    dst = root / "reports" / subject / f"{trial}_freq.png"
+    return frequency_report(clean, config, f"Eyes {trial}", dst)
 
 
 def main(config):
@@ -34,7 +43,7 @@ def main(config):
         fp = find_file(root / subject, "*.cnt")
         print(fp)
         acq = load_data(fp)
-        preproc(config, acq, subject)
+        preprocess(config, acq, subject)
 
 
 def parse_args():
