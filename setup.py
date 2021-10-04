@@ -9,4 +9,5 @@ if __name__ == "__main__":
         version=versioneer.get_version(),
         cmdclass=versioneer.get_cmdclass(),
         setup_requires=SETUP_REQUIRES,
+        include_package_data=True,
     )
