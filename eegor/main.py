@@ -27,13 +27,18 @@ def preprocess_trial():
     processed = preprocess.run_filters(raw, config)
     processed = preprocess.rereference(processed)
     epochs = preprocess.epoch(processed, config)
-    epochs.drop_channels("EOG")  # FIXME: autoreject has a cow otherwise
+    drop_eog(epochs)  # FIXME: autoreject has a cow otherwise
     ar, log, clean = reject(epochs, config)
 
     dst = root / "reports" / subject / f"{trial}_rejected.html"
     autoreject_report(processed.copy(), log, clean, dst, config)
     dst = root / "reports" / subject / f"{trial}_freq.png"
     return frequency_report(clean, config, f"Eyes {trial}", dst)
+
+
+def drop_eog(epochs):
+    if any(["EOG" == ch["ch_name"] for ch in epochs.info["chs"]]):
+        epochs.drop_channels("EOG")
 
 
 def main(config):
