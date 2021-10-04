@@ -8,17 +8,19 @@
   <div>
     <h1>{subject}</h1>
     <h3>Summary statistics</h3>
-    <div>Number of dropped epochs: {num_dropped_epochs}</div>
-    <div>Channels with poor data: {num_poor_channels}</div>
-    <h3>Visuals</h3>
-    <div>
-      <h3>Frequency spectrum for Eyes Open trial</h3>
-      {freq_open_png}
-    </div>
-    <div>
-      <h3>Frequency spectrum for Eyes Closed trial</h3>
-      {freq_closed_png}
-    </div>
+    <div>Channels with poor data: {poor_channels}</div>
+  </div>
+  <div>
+    <h3>Eyes Open</h3>
+    <div>Number of dropped epochs: {num_dropped_open}</div>
+    <h3>Frequency spectrum</h3>
+    {freq_open_png}
+  </div>
+  <div>
+    <h3>Eyes Closed</h3>
+    <div>Number of dropped epochs: {num_dropped_closed}</div>
+    <h3>Frequency spectrum</h3>
+    {freq_closed_png}
   </div>
 </body>
 </html>

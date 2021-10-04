@@ -1,5 +1,5 @@
 from pathlib import Path
-import eegor.report.data as template_folder
+import eegor.report as template_folder
 from eegor.utils.figure import embed_html
 
 
@@ -11,15 +11,17 @@ def open_template():
         return "".join(f.readlines())
 
 
-def individual_report(subject, num_dropped_epochs, num_poor_channels,
+def individual_report(subject, poor_channels,
+                      num_dropped_open, num_dropped_closed,
                       freq_open_fig, freq_closed_fig):
     freq_open_png = embed_html(freq_open_fig)
     freq_closed_png = embed_html(freq_closed_fig)
 
     template = open_template()
     report = template.format(subject=subject,
-                             num_dropped_epochs=num_dropped_epochs,
-                             num_poor_channels=num_poor_channels,
+                             num_dropped_open=num_dropped_open,
+                             num_dropped_closed=num_dropped_closed,
+                             poor_channels=poor_channels,
                              freq_open_png=freq_open_png,
                              freq_closed_png=freq_closed_png)
     return report
