@@ -3,6 +3,9 @@ import mne
 
 
 def run_filters(acq, config):
+    """
+    Applies Notch and Bandpass filters to acquisition
+    """
     notch = config["notch"]
     low_pass = config["low_pass"]
     high_pass = config["high_pass"]
@@ -12,10 +15,12 @@ def run_filters(acq, config):
 
 
 def rereference(acq):
+    """ Rereference all the EEG changes to the average """
     return acq.set_eeg_reference(ref_channels="average")
 
 
 def epoch(eeg, config):
+    """ Epoch a given EEG signal into fixed chunks """
     duration = config["epoch"]
     epochs = mne.make_fixed_length_epochs(eeg,
                                           duration=duration,
@@ -39,12 +44,19 @@ def get_marker_timepoint(acq):
     """
     df = acq.annotations.to_data_frame()
     start = df[df["description"] == "0"]["onset"].min()
-    half = ((df[df["description"] == "1004"]["onset"].iloc[0] - start)
+    half = ((df[df["description"] == "1004"]["onset"].iloc[-1] - start)
             .total_seconds())
     return half
 
 
 def split_eeg(acq, config):
+    """
+    Deprecated
+
+    Before the eyes open and eyes closed data were acquired as separate
+    trials, they were acquired all at once with a marker that separated
+    the two
+    """
     half = get_marker_timepoint(acq)
     eyes_o = acq.copy().crop(tmin=0, tmax=half)
     eyes_c = acq.copy().crop(tmin=half, tmax=None)
