@@ -7,6 +7,10 @@ template_folder = Path(template_folder.__file__).parent
 
 
 def open_template():
+    """
+    Opens a template HTML file and returns it as one string (\n included to
+    indicate newlines).
+    """
     with open(template_folder / "template.html", "r") as f:
         return "".join(f.readlines())
 
