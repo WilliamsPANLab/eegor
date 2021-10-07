@@ -21,6 +21,7 @@ def preprocess_subject(config, acq, subject):
     report = individual_report(subject, poor_channels,
                                num_dropped_open, num_dropped_closed,
                                freq_open_fig, freq_closed_fig)
+    dst.parent.mkdir(exist_ok=True, parents=True)
     with open(dst, "w") as f:
         f.write(report)
 
