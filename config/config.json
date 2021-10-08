@@ -1,0 +1,16 @@
+{
+    "eyes_open_start_cut": 15,
+    "eyes_closed_start_cut": 15,
+
+    "notch": [60],
+    "low_pass": 100,
+    "high_pass": 2,
+    "epoch": 2,
+
+    "trial_duration": 285,
+    "duration_epsilon": 1,
+
+    "autoreject_method": "bayesian_optimization",
+
+    "random_seed": 5
+}
