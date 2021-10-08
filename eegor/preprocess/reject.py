@@ -19,12 +19,12 @@ def reject(epochs, config, verbose="tqdm"):
     Alexandre Gramfort. 2017. "Autoreject: Automated artifact rejection for
     MEG and EEG data". NeuroImage, 159, 417-429.
     """
-    seed = config["seed"]
+    seed = config["random_seed"]
+    thresh_method = config["autoreject_method"]
+
     picks = mne.pick_types(epochs.info, meg=False, eeg=True, stim=False,
                            eog=True, ecg=False)
-    # Bayesian Optimization is preferred over random_search
-    # https://github.com/autoreject/autoreject/issues/84#issuecomment-341049798
-    ar = AutoReject(thresh_method="bayesian_optimization", random_state=seed,
+    ar = AutoReject(thresh_method=thresh_method, random_state=seed,
                     verbose=verbose, picks=picks)
     clean, return_log = ar.fit_transform(epochs, return_log=True)
     return ar, return_log, clean
