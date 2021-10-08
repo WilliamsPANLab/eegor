@@ -82,5 +82,5 @@ def crop_eeg(acq, config, trial=None):
         end = config[f"eyes_{trial}_start_cut"]
         acq.crop(tmin=0, tmax=max(acq.times) - end)
     duration = max(acq.times)
-    if duration + epsilon - expected_duration < 0:
-        print(f"EEG recording of duration={duration} is too short")
+    if abs(duration - expected_duration) > epsilon:
+        raise Exception(f"EEG recording of duration={duration} is too short")
