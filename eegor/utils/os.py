@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+import json
 from pathlib import Path, PosixPath
 
 
@@ -39,3 +41,9 @@ def replace_ext(filepath, ext):
     elif orig_type == PosixPath:
         return Path(str(filepath_wo_ext) + ext)
     raise TypeError(f"Cannot coerce {filepath} to type {orig_type}")
+
+
+def load_json(fp):
+    import json
+    with open(fp, "r") as f:
+        return json.load(f)
