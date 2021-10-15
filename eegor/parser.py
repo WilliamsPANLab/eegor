@@ -1,6 +1,25 @@
 import argparse
 from pathlib import PosixPath
-from eegor.utils.os import find_file, load_json
+from eegor.utils.os import load_json
+
+
+def get_subjects(args):
+    if args.participant_label is None:
+        # Read the participant TSV if flag not provided
+        input_dir = args.input_dir
+        subjects = open(input_dir / "participant.tsv", "r").readlines()
+        return [_drop_sub(sub).replace("\n", "") for sub in subjects]
+    else:
+        return args.participant_label
+
+
+def get_sessions(args):
+    if args.session_label is None:
+        # Default to all sessions if flag not provided
+        return ["00", "01", "02"]
+    else:
+        return args.session_label
+
 
 def _drop_sub(value):
     return value[4:] if value.startswith("sub-") else value
@@ -17,7 +36,6 @@ def parse_args():
     parser.add_argument("output_dir", type=PosixPath,
                         help="The output directory for EEGOR outputs")
     parser.add_argument("--config", type=PosixPath,
-                        default=config,
                         help="Path to the config file")
     parser.add_argument("--participant-label",
                         action="store",
