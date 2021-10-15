@@ -1,8 +1,4 @@
-import argparse
-import importlib.util
-from pathlib import PosixPath
-from eegor.utils.os import find_file
-from eegor.utils.eeg import load_data
+from eegor.utils.eeg import load_data, drop_eog
 import eegor.preprocess.preprocess as preprocess
 from eegor.preprocess.reject import reject
 from eegor.vis.report import frequency_report
@@ -39,32 +35,19 @@ def preprocess_trial(raw, trial, config):
     return num_dropped, freq_fig
 
 
-def drop_eog(epochs):
-    if any(["EOG" == ch["ch_name"] for ch in epochs.info["chs"]]):
-        epochs.drop_channels("EOG")
-
-
 def main(config):
-    root = config["root"]
-    subjects = config["subjects"]
-    for subject in subjects:
-        fp = find_file(root / subject, "*.cnt")
-        print(fp)
-        acq = load_data(fp)
-        preprocess_subject(config, acq, subject)
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="EEGOR config parser")
-    parser.add_argument("config_path", type=PosixPath,
-                        help="Path to the config file")
-    args = parser.parse_args()
-    config_path = args.config_path
-    loader = importlib.util.spec_from_file_location(config_path.name,
-                                                    str(config_path))
-    module = importlib.util.module_from_spec(loader)
-    loader.loader.exec_module(module)
-    return module.config
+    args = parse_args():
+    subjects = get_subjects(args)
+    sessions = get_sessions(args)
+    for sub in subjects:
+        for ses in sessions:
+            ses_dir = root / f"sub-{sub}" / f"ses-{ses}"
+            if not ses_dir.is_dir():
+                continue  # subject, session does not have available data
+            for fp in ses_dir.glob(f"sub-{sub}_ses-{ses}_task-*.cnt"):
+                print(fp)
+                acq = load_data(fp)
+                preprocess_subject(config, acq, subject)
 
 
 if __name__ == "__main__":
