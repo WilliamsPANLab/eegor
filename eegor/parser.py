@@ -59,7 +59,7 @@ def setup_config():
     args = parse_args()
     if args.config is None:
         import eegor.config as config_dir
-        config_dir = Path(config_dir.__file__.parent)
+        config_dir = Path(config_dir.__file__).parent
         config_path = config_dir / "config.json"
     else:
         config_path = args.config
