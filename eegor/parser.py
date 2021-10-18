@@ -1,6 +1,6 @@
 import argparse
-from pathlib import PosixPath
-from eegor.utils.os import load_json
+from pathlib import Path, PosixPath
+from eegor.utils.os import load_json, dotdict
 
 
 def get_subjects(args):
@@ -52,12 +52,19 @@ def parse_args():
                         help="a space delimited list of session "
                         "identifiers or a single identifier (the ses- prefix "
                         "can be removed). Defaults to all sessions.")
-    args = parser.parse_args()
-    src = args.input_file
-    dst_dir = args.output_dir
-    trial = args.trial
-    config = load_json(args.config)
-    return {
-            "src": src, "dst_dir": dst_dir,
-            "trial": trial, "config": config
-    }
+    return parser.parse_args()
+
+
+def setup_config():
+    args = parse_args()
+    if args.config is None:
+        import eegor.config as config_dir
+        config_dir = Path(config_dir.__file__.parent)
+        config_path = config_dir / "config.json"
+    else:
+        config_path = args.config
+    assert config_path.is_file(), f"Cannot find config: {config_path}"
+    config = load_json(config_path)
+    config["subjects"] = get_subjects(args)
+    config["sessions"] = get_sessions(args)
+    return dotdict({**config, **vars(args)})
