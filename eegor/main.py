@@ -18,6 +18,19 @@ def write_report(config, report):
     fn = f"{bids_sub}_{bids_ses}_report"
     write_html(report, dst_dir / (fn + ".html"))
     write_json(report, dst_dir / (fn + ".json"))
+    write_methods(config, dst_dir / f"{bids_sub}_{bids_ses}_methods.txt")
+
+
+def write_methods(config, dst):
+    filters = "Hz, ".join(config.notch) + "Hz"
+    text = f"""The raw EEG was filtered with a high pass of
+    {config.high_pass}Hz and a low pass of {config.low_pass}Hz.
+    Then notch filters, {filters}, were applied to the EEG data.
+    The data was rereferenced to the {config.ref_channel}. Epochs
+    were generated with a period of {config.epoch}s. Finally Autoreject
+    was run using {config.autoreject_method}"""
+    with open(dst, "w") as f:
+        f.write(dst, text)
 
 
 def write_html(report, dst):
@@ -41,7 +54,7 @@ def preprocess_trial(config, raw, trial, report):
     processed = preprocess.run_filters(raw, config)
     processed = preprocess.rereference(processed)
     epochs = preprocess.epoch(processed, config)
-    drop_eog(epochs)  # FIXME: autoreject has a cow otherwise
+    drop_eog(epochs)  # NOTE: autoreject has a cow otherwise
     ar, log, clean = reject(epochs, config)
 
     num_dropped = qa.dropped_epochs(log)
