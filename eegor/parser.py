@@ -5,21 +5,28 @@ from eegor.utils.objects import dotdict
 
 
 def get_subjects(args):
-    if args.participant_label is None:
-        # Read the participant TSV if flag not provided
+    if (args.participant_label is not None and
+            args.participant_tsv is not None):
+        raise RuntimeError("Cannot provide both --participant-label and "
+                           "participant-tsv flags")
+    if args.participant_label is not None:
+        return args.participant_label
+    elif args.participant_tsv is not None:
+        subjects = open(args.participant_tsv, "r").readlines()
+        return [_drop_sub(sub).replace("\n", "") for sub in subjects]
+    else:
+        # Default to the participant TSV in the BIDS directory
         input_dir = args.input_dir
         subjects = open(input_dir / "participant.tsv", "r").readlines()
         return [_drop_sub(sub).replace("\n", "") for sub in subjects]
-    else:
-        return args.participant_label
 
 
 def get_sessions(args):
-    if args.session_label is None:
+    if args.session_label is not None:
+        return args.session_label
+    else:
         # Default to all sessions if flag not provided
         return ["00", "01", "02"]
-    else:
-        return args.session_label
 
 
 def _drop_sub(value):
@@ -53,6 +60,9 @@ def parse_args():
                         help="a space delimited list of session "
                         "identifiers or a single identifier (the ses- prefix "
                         "can be removed). Defaults to all sessions.")
+    parser.add_argument("--participant-tsv", type=PosixPath,
+                        help="A path to a TSV with the IDs of subjects to "
+                        "be processed")
     return parser.parse_args()
 
 

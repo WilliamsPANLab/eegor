@@ -42,11 +42,11 @@ EEGOR is designed to run similar to [fMRIPrep](https://github.com/nipreps/fmripr
 python (...)/eegor/eegor.py [--config]
                             [--participant-label PARTICIPANT_LABEL [PARTICIPANT_LABEL ...]] 
                             [--session-label SESSION_LABEL [SESSION_LABEL ...]] 
+                            [--participant-tsv]
                             $INPUT $OUTPUT
 ```
 
-If a `--participant-label` flag isn't provided, then the subjects listed in the 
-`$INPUT/participants.tsv` will be used 
+If both the `--participant-label` and `--participant-tsv` flags aren't provided, then the subjects listed in the `$INPUT/participants.tsv` will be used.
 
 If a `--session-label` flag isn't provided, then the sessions will be: 
 `ses-00`, `ses-01`, and `ses-02`
