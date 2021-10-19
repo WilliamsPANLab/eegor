@@ -1,33 +1,24 @@
-import argparse
-import importlib.util
-from pathlib import PosixPath
-from eegor.utils.os import find_file
-from eegor.utils.eeg import load_data
+from eegor.utils.eeg import load_data, drop_eog
 import eegor.preprocess.preprocess as preprocess
 from eegor.preprocess.reject import reject
 from eegor.vis.report import frequency_report
 import eegor.report.qa as qa
 from eegor.report.report import individual_report
+from eegor.parser import setup_config
 
 
-def preprocess_subject(config, acq, subject):
-    root = config["root"]
-    dst = root / "reports" / f"{subject}.html"
-    poor_channels = ", ".join(qa.dead_channels(acq.copy()))
-    eo, ec = preprocess.split_eeg(acq, config)
-
-    num_dropped_open, freq_open_fig = preprocess_trial(eo, "open", config)
-    num_dropped_closed, freq_closed_fig = preprocess_trial(ec, "closed", config)  # noqa: E501
-    report = individual_report(subject, poor_channels,
-                               num_dropped_open, num_dropped_closed,
-                               freq_open_fig, freq_closed_fig)
+def write_report(config, report):
+    subject_folder = "sub-" + report["subject"]
+    session_folder = "ses-" + report["session"]
+    dst_dir = config.output_dir / subject_folder / session_folder
+    dst = dst_dir / "report.html"
     dst.parent.mkdir(exist_ok=True, parents=True)
     with open(dst, "w") as f:
-        f.write(report)
+        f.write(individual_report(report))
 
 
-def preprocess_trial(raw, trial, config):
-    preprocess.crop_eeg(raw, config, trial=trial)
+def preprocess_trial(config, raw, trial, report):
+    poor_channels = ", ".join(qa.dead_channels(raw.copy()))
     processed = preprocess.run_filters(raw, config)
     processed = preprocess.rereference(processed)
     epochs = preprocess.epoch(processed, config)
@@ -35,38 +26,37 @@ def preprocess_trial(raw, trial, config):
     ar, log, clean = reject(epochs, config)
 
     num_dropped = qa.dropped_epochs(log)
-    freq_fig, ax = frequency_report(clean, config, f"Eyes {trial}")
-    return num_dropped, freq_fig
+    freq_fig, ax = frequency_report(clean, config, "Frequenct Spectrum")
+
+    report["tasks"][trial] = dict()
+    report["tasks"][trial]["poor_channels"] = poor_channels
+    report["tasks"][trial]["num_dropped"] = num_dropped
+    report["tasks"][trial]["freq_fig"] = freq_fig
 
 
-def drop_eog(epochs):
-    if any(["EOG" == ch["ch_name"] for ch in epochs.info["chs"]]):
-        epochs.drop_channels("EOG")
+def _get_task(fp):
+    return fp.name.split(".")[0].split("_task-")[1].split("_")[0]
 
 
-def main(config):
-    root = config["root"]
-    subjects = config["subjects"]
-    for subject in subjects:
-        fp = find_file(root / subject, "*.cnt")
-        print(fp)
-        acq = load_data(fp)
-        preprocess_subject(config, acq, subject)
+def eegor(config):
+    for sub in config.subjects:
+        for ses in config.sessions:
+            ses_dir = config.input_dir / f"sub-{sub}" / f"ses-{ses}"
+            if not ses_dir.is_dir():
+                continue  # subject, session does not have available data
+            report = {"subject": sub, "session": ses, "tasks": {}}
+            for fp in ses_dir.glob(f"sub-{sub}_ses-{ses}_task-*.cnt"):
+                print(fp)
+                trial = _get_task(fp)
+                acq = load_data(fp)
+                preprocess_trial(config, acq, trial, report)
+            write_report(config, report)
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="EEGOR config parser")
-    parser.add_argument("config_path", type=PosixPath,
-                        help="Path to the config file")
-    args = parser.parse_args()
-    config_path = args.config_path
-    loader = importlib.util.spec_from_file_location(config_path.name,
-                                                    str(config_path))
-    module = importlib.util.module_from_spec(loader)
-    loader.loader.exec_module(module)
-    return module.config
+def main():
+    config = setup_config()
+    eegor(config)
 
 
 if __name__ == "__main__":
-    config = parse_args()
-    main(config)
+    main()

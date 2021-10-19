@@ -6,26 +6,28 @@ from eegor.utils.figure import embed_html
 template_folder = Path(template_folder.__file__).parent
 
 
-def open_template():
+def open_templates():
     """
     Opens a template HTML file and returns it as one string (\n included to
     indicate newlines).
     """
-    with open(template_folder / "template.html", "r") as f:
-        return "".join(f.readlines())
+    templates = dict()
+    for name in ["head", "task", "tail"]:
+        with open(template_folder / f"{name}.html", "r") as f:
+            templates[name] = "".join(f.readlines())
+    return templates
 
 
-def individual_report(subject, poor_channels,
-                      num_dropped_open, num_dropped_closed,
-                      freq_open_fig, freq_closed_fig):
-    freq_open_png = embed_html(freq_open_fig)
-    freq_closed_png = embed_html(freq_closed_fig)
-
-    template = open_template()
-    report = template.format(subject=subject,
-                             num_dropped_open=num_dropped_open,
-                             num_dropped_closed=num_dropped_closed,
-                             poor_channels=poor_channels,
-                             freq_open_png=freq_open_png,
-                             freq_closed_png=freq_closed_png)
-    return report
+def individual_report(report):
+    templates = open_templates()
+    bodies = list()
+    for task, info in report["tasks"].items():
+        info["freq_png"] = embed_html(info["freq_fig"])
+        info["task"] = task
+        bodies.append(templates["task"].format(**info))
+    if len(bodies) == 0:
+        return False
+    report = ([templates["head"].format(**report)] +
+              bodies +
+              [templates["tail"].format(**report)])
+    return "\n".join(report)

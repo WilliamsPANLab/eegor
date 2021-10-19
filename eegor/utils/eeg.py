@@ -70,3 +70,8 @@ def load_data(fp, preload=True, eog=["EOG"], montage="standard_1020"):
 def get_interval(epochs):
     """ Retrieves the length of each epoch """
     return max(epochs.times) + epochs.times[1]
+
+
+def drop_eog(acq):
+    if any(["EOG" == ch["ch_name"] for ch in acq.info["chs"]]):
+        acq.drop_channels("EOG")

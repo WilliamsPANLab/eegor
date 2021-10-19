@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+import json
 from pathlib import Path, PosixPath
 
 
@@ -39,3 +41,21 @@ def replace_ext(filepath, ext):
     elif orig_type == PosixPath:
         return Path(str(filepath_wo_ext) + ext)
     raise TypeError(f"Cannot coerce {filepath} to type {orig_type}")
+
+
+def load_json(fp):
+    with open(fp, "r") as f:
+        return json.load(f)
+
+
+class dotdict(dict):
+    """
+    dot.notation access to dictionary attributes
+
+    Thanks to https://stackoverflow.com/a/23689767/9104642
+
+    FIXME: does not belong in utils/os.py
+    """
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__

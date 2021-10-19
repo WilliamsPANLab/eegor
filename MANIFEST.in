@@ -1,3 +1,4 @@
 include versioneer.py
 include eegor/_version.py
+include eegor/config/config.json
 recursive-include eegor *.html
