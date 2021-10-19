@@ -23,6 +23,7 @@ def individual_report(report):
     bodies = list()
     for task, info in report["tasks"].items():
         info["freq_png"] = embed_html(info["freq_fig"])
+        info["task"] = task
         bodies.append(templates["task"].format(**info))
     if len(bodies) == 0:
         return False

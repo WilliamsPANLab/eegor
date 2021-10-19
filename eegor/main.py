@@ -47,8 +47,8 @@ def eegor(config):
             report = {"subject": sub, "session": ses, "tasks": {}}
             for fp in ses_dir.glob(f"sub-{sub}_ses-{ses}_task-*.cnt"):
                 print(fp)
-                acq = load_data(fp)
                 trial = _get_task(fp)
+                acq = load_data(fp)
                 preprocess_trial(config, acq, trial, report)
             write_report(config, report)
 
