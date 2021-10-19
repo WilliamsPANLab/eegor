@@ -95,8 +95,13 @@ def eegor(config):
 
 
 def main():
+    # FIXME: this section should be part of CLI
     config = setup_config()
-    eegor(config)
+    if config.group:
+        from eegor.group import group
+        group(config)
+    else:
+        eegor(config)
 
 
 if __name__ == "__main__":

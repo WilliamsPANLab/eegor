@@ -63,6 +63,9 @@ def parse_args():
     parser.add_argument("--participant-tsv", type=PosixPath,
                         help="A path to a TSV with the IDs of subjects to "
                         "be processed")
+    parser.add_argument("--group", action="store_true",
+                        help="Runs a group report instead of individual "
+                        "processing")
     return parser.parse_args()
 
 
