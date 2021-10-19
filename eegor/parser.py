@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path, PosixPath
-from eegor.utils.os import load_json, dotdict
+from eegor.utils.os import load_json
+from eegor.utils.objects import dotdict
 
 
 def get_subjects(args):

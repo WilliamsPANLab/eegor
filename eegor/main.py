@@ -5,16 +5,35 @@ from eegor.vis.report import frequency_report
 import eegor.report.qa as qa
 from eegor.report.report import individual_report
 from eegor.parser import setup_config
+from eegor.utils.objects import is_json_serializable
+from eegor.utils.os import save_json
 
 
 def write_report(config, report):
-    subject_folder = "sub-" + report["subject"]
-    session_folder = "ses-" + report["session"]
-    dst_dir = config.output_dir / subject_folder / session_folder
-    dst = dst_dir / "report.html"
-    dst.parent.mkdir(exist_ok=True, parents=True)
+    bids_sub = "sub-" + report["subject"]
+    bids_ses = "ses-" + report["session"]
+    dst_dir = config.output_dir / bids_sub / bids_ses
+    dst_dir.mkdir(exist_ok=True, parents=True)
+
+    fn = f"{bids_sub}_{bids_ses}_report"
+    write_html(report, dst_dir / (fn + ".html"))
+    write_json(report, dst_dir / (fn + ".json"))
+
+
+def write_html(report, dst):
     with open(dst, "w") as f:
         f.write(individual_report(report))
+
+
+def write_json(report, dst):
+    metrics = dict()
+    for task, info in report["tasks"].items():
+        metrics.setdefault(task, dict())
+        for k, v in info.items():
+            if not is_json_serializable(v):
+                continue
+            metrics[task][k] = v
+    save_json(metrics, dst)
 
 
 def preprocess_trial(config, raw, trial, report):
@@ -26,7 +45,7 @@ def preprocess_trial(config, raw, trial, report):
     ar, log, clean = reject(epochs, config)
 
     num_dropped = qa.dropped_epochs(log)
-    freq_fig, ax = frequency_report(clean, config, "Frequenct Spectrum")
+    freq_fig, ax = frequency_report(clean, config, "Frequency Spectrum")
 
     report["tasks"][trial] = dict()
     report["tasks"][trial]["poor_channels"] = poor_channels
