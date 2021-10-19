@@ -44,18 +44,12 @@ def replace_ext(filepath, ext):
 
 
 def load_json(fp):
+    """ Read data from JSON """
     with open(fp, "r") as f:
         return json.load(f)
 
 
-class dotdict(dict):
-    """
-    dot.notation access to dictionary attributes
-
-    Thanks to https://stackoverflow.com/a/23689767/9104642
-
-    FIXME: does not belong in utils/os.py
-    """
-    __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+def save_json(data, fp):
+    """ Save data as a JSON """
+    with open(fp, "w") as f:
+        json.dump(data, f, indent=2)
