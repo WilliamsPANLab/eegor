@@ -9,16 +9,17 @@ from eegor.utils.objects import is_json_serializable
 from eegor.utils.os import save_json
 
 
-def write_report(config, report):
+def write_report(acq, config, report):
     bids_sub = "sub-" + report["subject"]
     bids_ses = "ses-" + report["session"]
     dst_dir = config.output_dir / bids_sub / bids_ses
     dst_dir.mkdir(exist_ok=True, parents=True)
 
-    fn = f"{bids_sub}_{bids_ses}_report"
-    write_html(report, dst_dir / (fn + ".html"))
-    write_json(report, dst_dir / (fn + ".json"))
-    write_methods(config, dst_dir / f"{bids_sub}_{bids_ses}_methods.txt")
+    fn = f"{bids_sub}_{bids_ses}"
+    write_html(report, dst_dir / (fn + "_report.html"))
+    write_json(report, dst_dir / (fn + "_report.json"))
+    write_methods(config, dst_dir / (fn + "_methods.txt"))
+    save_annotations(acq, dst_dir / (fn + "_annotations.csv"))
 
 
 def write_methods(config, dst):
@@ -31,6 +32,14 @@ def write_methods(config, dst):
     was run using {config.autoreject_method}"""
     with open(dst, "w") as f:
         f.write(dst, text)
+
+
+def save_annotations(acq, dst):
+    df = acq.annotations.to_data_frame()
+    df.rename(columns={"onset": "datetime"}, inplace=True)
+    df["onset"] = ((df["datetime"] - df["datetime"].min())
+                   .map(lambda x: x.total_seconds()))
+    df.to_csv(dst, index=False)
 
 
 def write_html(report, dst):
