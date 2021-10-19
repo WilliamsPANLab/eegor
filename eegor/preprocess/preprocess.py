@@ -1,5 +1,4 @@
 import mne
-# import logging
 
 
 def run_filters(acq, config):
@@ -14,9 +13,11 @@ def run_filters(acq, config):
     return acq.copy().filter(high_pass, low_pass).notch_filter(notch)
 
 
-def rereference(acq):
-    """ Rereference all the EEG changes to the average """
-    return acq.set_eeg_reference(ref_channels="average")
+def rereference(acq, config):
+    """
+    Rereference all the EEG changes to the ref_channel (usually average)
+    """
+    return acq.set_eeg_reference(ref_channels=config.ref_channel)
 
 
 def epoch(eeg, config):
@@ -49,6 +50,20 @@ def get_marker_timepoint(acq):
     return half
 
 
+def crop_eeg(acq, config, report):
+    time = max(acq.times) - min(acq.times)
+    _min, _max = config.min_acq_time, config.max_acq_time
+    assert _max > _min, (f"The maximum time ({_max}s) should be greater than "
+                         f"the minimum time ({_min}s)")
+    assert time >= _min, (f"Acquisition is {time}s which is shorter than the "
+                          f"minimum time given in the config, {_min}s")
+    if time > max(acq.times):
+        print("WARNING. Acquisition is {time}s which is longer than the"
+              "maximum time given in the config, {_max}s")
+        acq.crop(tmin=min(acq.times), tmax=min(acq.times) + _max)
+
+
+'''
 def split_eeg(acq, config):
     """
     Deprecated
@@ -67,6 +82,11 @@ def split_eeg(acq, config):
 
 def crop_eeg(acq, config, trial=None):
     """
+    Deprecated
+
+    The data was cut out of the worry that the transition between eyes open
+    and eyes closed would be noisy.
+
     TODO: below is if we cared about having the durations all be the same
     eeg.crop(tmin=max(times) - trial_duration, tmax=max(times) - 15)
     """
@@ -84,3 +104,4 @@ def crop_eeg(acq, config, trial=None):
     duration = max(acq.times)
     if abs(duration - expected_duration) > epsilon:
         raise Exception(f"EEG recording of duration={duration} is too short")
+'''
