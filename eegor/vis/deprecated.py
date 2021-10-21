@@ -8,6 +8,8 @@ from tqdm import tqdm
 def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16,
                offset_factor=4):
     """
+    Deprecated.
+
     Unfortunately, the raw EEG signal can't be plotted as is, it won't
     be deceipherable by anyone. EEG signal gets better over time so
     scipy's detrend is used to remove this. The signal mean is changed so
@@ -45,6 +47,8 @@ def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16,
 
 def plot_eeg_channels(signal, dst, title, config):
     """
+    Deprecated.
+
     Saves a plotly figure for all EEG channels in signal
     Parameters
     ----------
@@ -202,3 +206,34 @@ def plot_rejects(acq, ar_log, interval, dst, config):
         showlegend=False
     )
     fig.write_html(dst)
+
+
+def raw_report(raw, config, dst):
+    """ Deprecated. """
+    title = "Raw"
+    dst.parent.mkdir(exist_ok=True, parents=True)
+    plot_eeg_channels(raw, str(dst), title, config)
+
+
+def autoreject_report(acq, ar_log, epochs, dst, config):
+    """ Deprecated. """
+    dst.parent.mkdir(exist_ok=True, parents=True)
+    interval = get_interval(epochs)
+    plot_rejects(acq, ar_log, interval, str(dst), config)
+
+
+def raw_plot(raw, dst):
+    """ Deprecated. """
+    width, height = 2**8, 8
+    skip = 20
+    data = raw.get_data()
+    times = raw.times
+    N = data.shape[0]
+    fig, axarr = plt.subplots(N, 1, figsize=(width, height*N))
+    for i in tqdm(range(N)):
+        axarr[i].plot(times[::skip], data[i, ::skip])
+        axarr[i].set_xlim([min(times), max(times)])
+        axarr[i].set_xticks(range(int(min(times)), int(max(times)), 10))
+        axarr[i].set_ylabel(raw.info["chs"][i]["ch_name"], fontsize=32)
+    plt.tight_layout()
+    plt.savefig(dst)

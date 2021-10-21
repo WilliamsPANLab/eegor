@@ -22,29 +22,16 @@ def frequency_report(epochs, config, title, figsize=(14, 8),
     return fig, ax
 
 
-def raw_plot(raw, dst):
-    width, height = 2**8, 8
-    skip = 20
-    data = raw.get_data()
-    times = raw.times
-    N = data.shape[0]
-    fig, axarr = plt.subplots(N, 1, figsize=(width, height*N))
-    for i in tqdm(range(N)):
-        axarr[i].plot(times[::skip], data[i, ::skip])
-        axarr[i].set_xlim([min(times), max(times)])
-        axarr[i].set_xticks(range(int(min(times)), int(max(times)), 10))
-        axarr[i].set_ylabel(raw.info["chs"][i]["ch_name"], fontsize=32)
-    plt.tight_layout()
-    plt.savefig(dst)
-
-
-def raw_report(raw, config, dst):
-    title = "Raw"
-    dst.parent.mkdir(exist_ok=True, parents=True)
-    plot_eeg_channels(raw, str(dst), title, config)
-
-
-def autoreject_report(acq, ar_log, epochs, dst, config):
-    dst.parent.mkdir(exist_ok=True, parents=True)
-    interval = get_interval(epochs)
-    plot_rejects(acq, ar_log, interval, str(dst), config)
+def plot_bads(acq, figsize=(14, 8), SEPARATION=1e-10):
+    chs = dead_channels(acq)
+    data = acq.get_data()
+    plt.figure(figsize=figsize)
+    num = 0
+    for i, ch in enumerate(acq.info["chs"]):
+        if ch["ch_name"] in chs:
+            num += 1
+            signal = (data[i] - data[i].mean())
+            signal = signal + (num * SEPARATION)
+            plt.plot(acq.times, signal, ".", label=ch["ch_name"])
+    plt.legend()
+    plt.show()
