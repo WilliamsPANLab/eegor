@@ -1,78 +1,24 @@
 from eegor.utils.eeg import load_data, drop_eog
 import eegor.preprocess.preprocess as preprocess
 from eegor.preprocess.reject import reject
-from eegor.vis.report import frequency_report
+from eegor.vis.report import frequency_vis
 import eegor.report.qa as qa
-from eegor.report.report import individual_report
 from eegor.parser import setup_config
-from eegor.utils.objects import is_json_serializable
-from eegor.utils.os import save_json
-
-
-def write_report(acq, config, report):
-    bids_sub = "sub-" + report["subject"]
-    bids_ses = "ses-" + report["session"]
-    dst_dir = config.output_dir / bids_sub / bids_ses
-    dst_dir.mkdir(exist_ok=True, parents=True)
-
-    fn = f"{bids_sub}_{bids_ses}"
-    write_html(report, dst_dir / (fn + "_report.html"))
-    write_json(report, dst_dir / (fn + "_report.json"))
-    write_methods(config, dst_dir / (fn + "_methods.txt"))
-    save_annotations(acq, dst_dir / (fn + "_annotations.csv"))
-
-
-def write_methods(config, dst):
-    filters = "Hz, ".join(config.notch) + "Hz"
-    text = f"""The raw EEG was filtered with a high pass of
-    {config.high_pass}Hz and a low pass of {config.low_pass}Hz.
-    Then notch filters, {filters}, were applied to the EEG data.
-    The data was rereferenced to the {config.ref_channel}. Epochs
-    were generated with a period of {config.epoch}s. Finally Autoreject
-    was run using {config.autoreject_method}"""
-    with open(dst, "w") as f:
-        f.write(dst, text)
-
-
-def save_annotations(acq, dst):
-    df = acq.annotations.to_data_frame()
-    df.rename(columns={"onset": "datetime"}, inplace=True)
-    df["onset"] = ((df["datetime"] - df["datetime"].min())
-                   .map(lambda x: x.total_seconds()))
-    df.to_csv(dst, index=False)
-
-
-def write_html(report, dst):
-    with open(dst, "w") as f:
-        f.write(individual_report(report))
-
-
-def write_json(report, dst):
-    metrics = dict()
-    for task, info in report["tasks"].items():
-        metrics.setdefault(task, dict())
-        for k, v in info.items():
-            if not is_json_serializable(v):
-                continue
-            metrics[task][k] = v
-    save_json(metrics, dst)
 
 
 def preprocess_trial(config, raw, trial, report):
-    poor_channels = ", ".join(qa.dead_channels(raw.copy()))
+    trial_info = {}
+    trial_info["poor_channels"] = ", ".join(qa.dead_channels(raw.copy()))
+    trial_info["duration"] = max(raw.times) - min(raw.times)
     processed = preprocess.run_filters(raw, config)
     processed = preprocess.rereference(processed)
     epochs = preprocess.epoch(processed, config)
     drop_eog(epochs)  # NOTE: autoreject has a cow otherwise
     ar, log, clean = reject(epochs, config)
 
-    num_dropped = qa.dropped_epochs(log)
-    freq_fig, ax = frequency_report(clean, config, "Frequency Spectrum")
-
-    report["tasks"][trial] = dict()
-    report["tasks"][trial]["poor_channels"] = poor_channels
-    report["tasks"][trial]["num_dropped"] = num_dropped
-    report["tasks"][trial]["freq_fig"] = freq_fig
+    trial_info["num_dropped"] = qa.dropped_epochs(log)
+    trial_info["freq_fig"], ax = frequency_vis(clean, config)
+    report["tasks"][trial] = trial_info
 
 
 def _get_task(fp):

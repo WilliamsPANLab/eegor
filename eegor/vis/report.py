@@ -6,8 +6,8 @@ import seaborn as sns
 sns.set()
 
 
-def frequency_report(epochs, config, title, figsize=(14, 8),
-                     labelsize=24, titlesize=32):
+def frequency_vis(epochs, config, title="Frequency Spectrum",
+                     figsize=(14, 8), labelsize=24, titlesize=32):
     fig, ax = plt.subplots(figsize=figsize)
     fig = epochs.plot_psd(
             fmin=config["high_pass"],
