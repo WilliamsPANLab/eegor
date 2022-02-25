@@ -1,6 +1,7 @@
 from math import ceil
 import numpy as np
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 from scipy.signal import detrend
 from tqdm import tqdm
 
@@ -217,9 +218,10 @@ def raw_report(raw, config, dst):
 
 def autoreject_report(acq, ar_log, epochs, dst, config):
     """ Deprecated. """
-    dst.parent.mkdir(exist_ok=True, parents=True)
-    interval = get_interval(epochs)
-    plot_rejects(acq, ar_log, interval, str(dst), config)
+    # dst.parent.mkdir(exist_ok=True, parents=True)
+    # interval = get_interval(epochs)  # function no longer exists
+    # plot_rejects(acq, ar_log, interval, str(dst), config)
+    pass
 
 
 def raw_plot(raw, dst):

@@ -1,13 +1,10 @@
-from tqdm import tqdm
-from eegor.vis.timeseries import plot_eeg_channels, plot_rejects
-from eegor.utils.eeg import get_interval
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
 
 
 def frequency_vis(epochs, config, title="Frequency Spectrum",
-                     figsize=(14, 8), labelsize=24, titlesize=32):
+                  figsize=(14, 8), labelsize=24, titlesize=32):
     fig, ax = plt.subplots(figsize=figsize)
     fig = epochs.plot_psd(
             fmin=config["high_pass"],

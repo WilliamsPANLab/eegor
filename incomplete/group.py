@@ -1,3 +1,11 @@
+"""
+Incomplete. Patrick did not have time to finish this before he left
+
+The idea is to collate the results from a directory of individual
+reports so that the quality can be viewed at a glance
+"""
+
+
 from eegor.utils.os import load_json
 
 

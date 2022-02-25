@@ -3,7 +3,6 @@ import eegor.report as template_folder
 from eegor.utils.figure import embed_html
 from eegor.utils.os import save_json
 from eegor.utils.objects import is_json_serializable
-from eegor.report.report import individual_report
 
 
 template_folder = Path(template_folder.__file__).parent
