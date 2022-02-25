@@ -1,3 +1,6 @@
 .ipynb_checkpoints
 dev
 __pycache__
+build
+.eggs
+eegor.egg-info
