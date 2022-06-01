@@ -1,4 +1,5 @@
 import mne
+import numpy as np
 # import logging
 
 
@@ -48,6 +49,42 @@ def get_marker_timepoint(acq):
             .total_seconds())
     return half
 
+def gratton(epochs):
+    """
+    perform gratton algorithm to remove ocular artifacts from an acquisition
+    https://mne.tools/dev/auto_tutorials/preprocessing/35_artifact_correction_regression.html
+    """
+    #epochs.set_channel_types({'HEOG': 'eog', 'VEOG': 'eog', 'ECG': 'ecg'}) 
+    #do regression
+    _, betas = mne.preprocessing.regress_artifact(epochs.copy().subtract_evoked())
+    epochs_clean, _ = mne.preprocessing.regress_artifact(epochs, betas=betas)
+    return epochs_clean
+
+def ica():
+    """
+    perform ica
+    """
+    return
+
+def freq_domain(acq, channels, config):
+    """
+    convert an acquisition to the frequency domain using FFT (or STFT).
+    """
+    fs = 1024
+    print(acq.shape)
+    data = acq
+    #data = acq.get_data()
+    #channels = acq.info["chs"]
+
+    eeg_band_fft = dict()
+    
+    for i, ch in enumerate(channels):
+        fft_vals = np.absolute(np.fft.rfft(data[i]))
+        fft_freq = np.fft.rfftfreq(len(data[i]), 1.0/fs)
+        for band in config.eeg_bands:
+            freq_ix = np.where((fft_freq >= config.eeg_bands[band][0]) & (fft_freq <= config.eeg_bands[band][1]))[0]    
+            eeg_band_fft[ch["ch_name"] + "_" + band] = np.mean(fft_vals[freq_ix])
+    return eeg_band_fft
 
 def split_eeg(acq, config):
     """

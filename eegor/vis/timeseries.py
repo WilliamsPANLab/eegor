@@ -3,7 +3,7 @@ import numpy as np
 import plotly.graph_objects as go
 from scipy.signal import detrend
 from tqdm import tqdm
-
+import pandas as pd
 
 def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16,
                offset_factor=4):
@@ -42,6 +42,24 @@ def pretty_eeg(channel, index, use_detrend=True, thresh=1e-16,
         std = channel.std()
     return (channel / std) - offset
 
+def tablify_eeg_signal(signal, config):
+    """
+    Creates a column in a table for each EEG channel in signal
+    """
+
+    data = signal.get_data()
+    times = signal.times
+    channels = signal.info["chs"]
+    df_data = {'time': times}
+    df = pd.DataFrame(df_data)
+    df.set_index('time')
+
+    for i, ch in enumerate(channels):
+        y = pretty_eeg(data[i], i)
+        name = ch["ch_name"]
+        df[name] = y
+
+    return df
 
 def plot_eeg_channels(signal, dst, title, config):
     """

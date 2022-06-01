@@ -1,4 +1,14 @@
 {
+    "eeg_bands": {
+	"delta": [1.5, 3.5],
+	"theta": [4, 7],
+	"low-alpha": [8, 10],
+	"high-alpha": [10.5, 13],
+	"low-beta": [13.5, 20],
+	"high-beta": [20.5, 30],
+	"low-gamma": [31, 70],
+	"high-gamma": [71, 100]
+    },
     "notch": [60],
     "low_pass": 100,
     "high_pass": 2,

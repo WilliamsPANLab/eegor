@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from eegor.vis.timeseries import plot_eeg_channels, plot_rejects
+from eegor.vis.timeseries import tablify_eeg_signal, plot_eeg_channels, plot_rejects
 from eegor.utils.eeg import get_interval
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -21,6 +21,8 @@ def frequency_report(epochs, config, title, figsize=(14, 8),
     ax.set_ylim([5, 50])
     return fig, ax
 
+def df_report(raw, config):
+    return tablify_eeg_signal(raw, config) 
 
 def raw_plot(raw, dst):
     width, height = 2**8, 8
